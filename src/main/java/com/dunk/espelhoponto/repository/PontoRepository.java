@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PontoRepository extends JpaRepository<Ponto, Long> {
@@ -15,4 +16,6 @@ public interface PontoRepository extends JpaRepository<Ponto, Long> {
     */
     List<Ponto> findByNomeFuncionarioAndDataHoraBetweenOrderByDataHoraAsc(
             String nomeFuncionario, LocalDateTime inicio, LocalDateTime fim);
+
+    Optional<Ponto> findTopByNomeFuncionarioOrderByDataHoraDesc(String nomeFuncionario);
 }
