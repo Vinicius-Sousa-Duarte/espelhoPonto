@@ -3,10 +3,11 @@ package com.dunk.espelhoponto.service;
 import com.dunk.espelhoponto.dto.NovoRegistroDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.entity.Ponto;
+import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.enums.TipoRegistro;
-import com.dunk.espelhoponto.exception.RegraNegocioException; // Certifique-se de criar esta classe
 import com.dunk.espelhoponto.repository.PontoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,22 +28,10 @@ public class PontoService {
 
     @Transactional
     public void registrar(NovoRegistroDTO dto) {
-        var ultimoRegistroOpt = repository
-                .findTopByNomeFuncionarioOrderByDataHoraDesc(dto.nomeFuncionario());
-
-        if (ultimoRegistroOpt.isPresent()) {
-            Ponto ultimo = ultimoRegistroOpt.get();
-            if (ultimo.getTipo() == dto.tipo()) {
-                throw new RegraNegocioException("Sequência inválida: O último registro já foi do tipo " + ultimo.getTipo());
-            }
-        } else {
-            if (dto.tipo() == TipoRegistro.SAIDA) {
-                throw new RegraNegocioException("Não é possível registrar SAÍDA sem haver uma ENTRADA anterior.");
-            }
-        }
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Ponto ponto = Ponto.builder()
-                .nomeFuncionario(dto.nomeFuncionario())
+                .usuario(usuarioLogado)
                 .dataHora(LocalDateTime.now())
                 .tipo(dto.tipo())
                 .build();
@@ -50,15 +39,21 @@ public class PontoService {
         repository.save(ponto);
     }
 
-    public SaldoHorasDTO calcularBancoHoras(String funcionario, LocalDate inicio, LocalDate fim) {
-        List<Ponto> pontos = repository.findByNomeFuncionarioAndDataHoraBetweenOrderByDataHoraAsc(
-                funcionario, inicio.atStartOfDay(), fim.atTime(LocalTime.MAX));
+    /**
+     * Agora o método espera o objeto Usuario, garantindo que buscamos pelo ID correto
+     * e não por uma String que poderia ser duplicada ou errada.
+     */
+    public SaldoHorasDTO calcularBancoHoras(Usuario usuario, LocalDate inicio, LocalDate fim) {
+
+        List<Ponto> pontos = repository.findByUsuarioAndDataHoraBetweenOrderByDataHoraAsc(
+                usuario, inicio.atStartOfDay(), fim.atTime(LocalTime.MAX));
 
         Map<LocalDate, List<Ponto>> pontosPorDia = pontos.stream()
                 .collect(Collectors.groupingBy(p -> p.getDataHora().toLocalDate()));
 
         long saldoGeralMinutos = 0;
         long totalTrabalhado = 0;
+
         long totalEsperado = pontosPorDia.size() * JORNADA_DIARIA_MINUTOS;
 
         for (List<Ponto> registrosDoDia : pontosPorDia.values()) {
@@ -68,7 +63,7 @@ public class PontoService {
         }
 
         return new SaldoHorasDTO(
-                funcionario,
+                usuario.getLogin(),
                 formatarSaldo(saldoGeralMinutos),
                 totalTrabalhado,
                 totalEsperado
