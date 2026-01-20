@@ -3,8 +3,7 @@ package com.dunk.espelhoponto.entity;
 import com.dunk.espelhoponto.enums.RegraUsuario;
 import jakarta.persistence.*;
 import lombok.*;
-
-import org.jspecify.annotations.Nullable;
+import org.hibernate.envers.Audited;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,14 +12,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "users")
 @Table(name = "tb_usuario")
+@Entity(name = "users")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-public class Usuario implements UserDetails {
-
+@EqualsAndHashCode(of = "id", callSuper = false)
+@Audited
+public class Usuario extends Auditable implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -29,13 +29,28 @@ public class Usuario implements UserDetails {
 
     private String senha;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private RegraUsuario regra;
 
-    public Usuario(String login, String senha, RegraUsuario regra){
+    public Usuario(String login, String senha, RegraUsuario regra) {
         this.login = login;
         this.senha = senha;
         this.regra = regra;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+
+        if (getCriadoPor() == null) {
+            setCriadoPor(this.id);
+        }
+
+        if (getModificadoPor() == null) {
+            setModificadoPor(this.id);
+        }
     }
 
     @Override
@@ -46,7 +61,7 @@ public class Usuario implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
+    public String getPassword() {
         return senha;
     }
 
@@ -75,4 +90,3 @@ public class Usuario implements UserDetails {
         return true;
     }
 }
-
