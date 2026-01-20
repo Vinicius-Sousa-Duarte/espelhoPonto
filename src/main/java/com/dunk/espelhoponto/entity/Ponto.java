@@ -2,10 +2,8 @@ package com.dunk.espelhoponto.entity;
 
 import com.dunk.espelhoponto.enums.TipoRegistro;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ponto {
+@EqualsAndHashCode(callSuper = false)
+@Audited
+public class Ponto extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
