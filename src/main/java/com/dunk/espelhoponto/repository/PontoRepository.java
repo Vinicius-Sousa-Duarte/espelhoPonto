@@ -17,4 +17,5 @@ public interface PontoRepository extends JpaRepository<Ponto, Long> {
             Usuario usuario, LocalDateTime inicio, LocalDateTime fim);
 
     Optional<Ponto> findTopByUsuarioOrderByDataHoraDesc(Usuario usuario);
+
 }

@@ -2,37 +2,51 @@
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.1-green)
-![Security](https://img.shields.io/badge/Spring_Security-6-red)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6-red)
+![Design Pattern](https://img.shields.io/badge/Pattern-Strategy-blue)
 
-Uma API REST robusta para controle de ponto e cálculo de banco de horas. O projeto evoluiu de uma POC simples para uma aplicação com **Autenticação Stateless (JWT)**, **Auditoria de Dados (Envers)** e **Clean Code**, utilizando as funcionalidades modernas do **Java 21**.
+Uma API REST robusta para controle de ponto e cálculo de banco de horas. O projeto evoluiu de uma POC simples para uma aplicação corporativa com **Autenticação Stateless (JWT)**, **Auditoria de Dados (Envers)**, **Regras de Negócio Complexas** e uso intensivo de **Design Patterns**, utilizando as funcionalidades modernas do **Java 21**.
 
 🔗 **Repositório:** [https://github.com/Vinicius-Sousa-Duarte/espelhoPonto](https://github.com/Vinicius-Sousa-Duarte/espelhoPonto)
 
 ## 🚀 Tecnologias e Ferramentas
 
-* **Java 21** (Utilização de `Records`, `UUID` e recursos modernos)
+* **Java 21** (Records, UUID, Var, Text Blocks)
 * **Spring Boot 3.4+** (Web, Validation, Data JPA)
-* **Spring Security 6** (Autenticação e Autorização Stateless)
-* **Auth0 Java JWT** (Geração e validação de Tokens)
-* **Hibernate Envers** (Auditoria histórica e versionamento de dados)
-* **H2 Database** (Banco em memória para desenvolvimento)
-* **Lombok** (Redução de boilerplate)
+* **Spring Security 6** (Autenticação Stateless)
+* **Auth0 Java JWT** (Assinatura HMAC256)
+* **Hibernate Envers** (Auditoria Histórica)
+* **H2 Database** (Banco em memória)
+* **Lombok** (Produtividade)
 * **Maven** (Gerenciamento de dependências)
 
-## 🏗 Arquitetura e Segurança
+## 🏗 Arquitetura e Design
 
-O projeto segue uma arquitetura em camadas focada em segurança e rastreabilidade:
+O projeto segue uma arquitetura limpa e focada em extensibilidade:
 
-* **Security Layer:** Filtros que interceptam requisições, validam Tokens JWT e injetam o usuário autenticado no contexto (`SecurityContextHolder`).
-* **Audit Layer:**
-    * **JPA Auditing:** Rastreia automaticamente *quem* criou/modificou e *quando* (`@CreatedBy`, `@LastModifiedDate`).
-    * **Envers:** Mantém tabelas de histórico (`_AUD`) para cada alteração, permitindo "voltar no tempo".
-* **Domain:** Uso de **UUID** para identificadores de usuários (segurança e compatibilidade com Hibernate 7).
+* **Security Layer:** Filtros interceptam requisições, validam Tokens JWT e injetam o usuário no `SecurityContextHolder`.
+* **Strategy Pattern:** A lógica de cálculo de horas (Adicional Noturno, Fim de Semana) foi desacoplada do Service usando interfaces (`CalculoHoraStrategy`), facilitando a manutenção.
+* **Audit Layer:** Rastreamento automático de criação/modificação (JPA Auditing) e versionamento histórico de tabelas (Envers).
+* **Rich DTOs:** A API não retorna apenas status HTTP, mas objetos ricos com mensagens, alertas e metadados.
 
-## ⚙️ Pré-requisitos
+## 🧠 Regras de Negócio Implementadas
 
-* JDK 21 instalado.
-* Maven instalado.
+O sistema vai além do CRUD básico e valida regras trabalhistas reais:
+
+1.  **Anti-Bounce (5 Minutos):**
+    * Bloqueia registros consecutivos com intervalo menor que 5 minutos.
+    * Retorno: `422 Unprocessable Entity` com mensagem explicativa.
+2.  **Alerta de Intervalo Intrajornada:**
+    * Ao registrar o retorno do almoço, o sistema calcula se o intervalo foi menor que 1 hora.
+    * Ação: Registra o ponto (Sucesso), mas retorna um campo `aviso` no JSON alertando sobre a infração.
+3.  **Adicional Noturno (Strategy):**
+    * Horas trabalhadas entre **22:00 e 05:00** têm peso **1.2x** (20% de acréscimo).
+4.  **Horas de Fim de Semana (Strategy):**
+    * Trabalho aos Sábados e Domingos tem peso **2.0x** (100% de Hora Extra).
+5.  **Auto-Auditoria:**
+    * No cadastro (`/register`), um evento `@PrePersist` garante que o campo `criado_por` seja preenchido com o próprio ID do usuário, garantindo integridade no banco.
+
+---
 
 ## 🏃‍♂️ Como Rodar
 
@@ -55,88 +69,89 @@ A aplicação iniciará na porta `8080`.
 
 ### 🔐 1. Autenticação (Pública)
 
-Antes de usar o sistema, você deve criar um usuário e fazer login para obter o Token.
-
 #### **Registrar Usuário**
 * **URL:** `POST /auth/register`
-* **Body:**
+* **Body:** `{ "login": "vinicius@email.com", "password": "123", "role": "USER" }`
+* **Resposta (201):**
     ```json
     {
         "login": "vinicius@email.com",
-        "password": "123",
-        "role": "USER"
+        "role": "USER",
+        "mensagem": "Usuário criado com sucesso!",
+        "dataCriacao": "2026-01-26T21:00:00"
     }
     ```
 
 #### **Fazer Login**
 * **URL:** `POST /auth/login`
-* **Body:**
-    ```json
-    {
-        "login": "vinicius@email.com",
-        "password": "123"
-    }
-    ```
-* **Resposta:** Retorna um JSON com o `token`. **Copie este token!**
+* **Body:** `{ "login": "vinicius@email.com", "password": "123" }`
+* **Resposta:** Retorna JSON com o `token`.
 
 ---
 
 ### 🕒 2. Pontos (Requer Token)
 
-⚠️ **Atenção:** Todas as requisições abaixo exigem o Header:
-`Authorization: Bearer <SEU_TOKEN_AQUI>`
+⚠️ **Header Obrigatório:** `Authorization: Bearer <SEU_TOKEN>`
 
 #### **Registrar Ponto**
-Bate o ponto. O sistema identifica o usuário automaticamente pelo Token.
 * **URL:** `POST /api/pontos`
-* **Body:**
+* **Body:** `{ "tipo": "ENTRADA" }` *(ou "SAIDA")*
+* **Cenário 1: Sucesso**
     ```json
     {
-        "tipo": "ENTRADA" 
+        "mensagem": "Ponto de ENTRADA registrado com sucesso!",
+        "aviso": null,
+        "tipo": "ENTRADA",
+        "dataHora": "2026-01-26T08:00:00"
     }
     ```
-  *(Aceita: "ENTRADA" ou "SAIDA")*
+* **Cenário 2: Sucesso com Alerta (Almoço Curto)**
+    ```json
+    {
+        "mensagem": "Ponto de ENTRADA registrado com sucesso!",
+        "aviso": "ALERTA: Intervalo de descanso inferior a 1 hora (30 min).",
+        "tipo": "ENTRADA",
+        "dataHora": "2026-01-26T12:30:00"
+    }
+    ```
+* **Cenário 3: Erro (Regra dos 5 min)**
+    * **Status:** `422 Unprocessable Entity`
+    ```json
+    {
+        "erro": "Regra de Negócio Violada",
+        "mensagem": "Espere 5 minutos! Último registro foi há 1 min.",
+        "timestamp": "..."
+    }
+    ```
 
 #### **Consultar Saldo**
-Calcula o banco de horas do usuário logado (Jornada de 8h).
-* **URL:** `GET /api/pontos/saldo`
-* **Query Params:**
-    * `inicio`: Data inicial (YYYY-MM-DD)
-    * `fim`: Data final (YYYY-MM-DD)
-* **Exemplo:** `GET /api/pontos/saldo?inicio=2026-01-01&fim=2026-01-31`
+* **URL:** `GET /api/pontos/saldo?inicio=2026-01-01&fim=2026-01-31`
+* **Resposta:**
+    ```json
+    {
+        "nomeFuncionario": "vinicius@email.com",
+        "saldoTotal": "+02:30",
+        "minutosTrabalhados": 510,
+        "minutosEsperados": 480,
+        "avisos": [
+            "Dia 2026-01-24: Fim de semana contabilizado (100%)."
+        ]
+    }
+    ```
 
 ---
 
-## 🕵️‍♂️ Auditoria e Banco de Dados (H2)
+## 🗄️ Estrutura do Projeto
 
-O sistema mantém um histórico completo de alterações.
-
-1.  Acesse: `http://localhost:8080/h2-console`
-2.  **JDBC URL:** `jdbc:h2:mem:pontodb`
-3.  **User/Password:** `sa` / *(vazio)*
-
-### Tabelas Principais:
-* **TB_USUARIO / TB_PONTO:** Dados atuais.
-* **TB_USUARIO_AUD / TB_PONTO_AUD:** Histórico de alterações (Envers).
-* **REVINFO:** Tabela de controle de revisões (Timestamp das mudanças).
-
-As colunas `CRIADO_POR` e `MODIFICADO_POR` contêm o UUID do usuário que realizou a ação.
-
-## 🧠 Lógica de Negócio
-
-1.  **Segurança:** O Controller não recebe ID de usuário. O `TokenService` extrai o usuário do JWT, garantindo que ninguém manipule dados de terceiros.
-2.  **Cálculo:** O sistema busca pares cronológicos (Entrada -> Saída) do usuário logado, soma os minutos e compara com a jornada esperada (480min/dia).
-3.  **Auto-Auditoria:** No cadastro (`/register`), um evento `@PrePersist` garante que o campo `criado_por` seja preenchido com o próprio ID do novo usuário, evitando erros de integridade.
-
-## 🔮 Melhorias Futuras
-
-* [x] Implementar autenticação (Spring Security/JWT).
-* [x] Adicionar Auditoria (Envers).
-* [ ] Adicionar testes de integração para o fluxo de Auditoria.
-* [ ] Dockerizar a aplicação.
-* [ ] Implementar Refresh Token.
-* [ ] Permitir configuração dinâmica da jornada (ex: 12x36).
-
----
-
-Feito com ☕ e Java.
+```text
+src/main/java/com/dunk/espelhoponto
+├── controller          # Endpoints REST
+├── entity              # Entidades JPA (Usuario, Ponto, Auditable)
+├── dto                 # Records para tráfego de dados (Request/Response)
+├── infra
+│   ├── audit           # Configuração JPA Auditing e Envers
+│   ├── exception       # GlobalExceptionHandler
+│   └── security        # Filtros, TokenService e Configurações
+├── repository          # Interfaces Spring Data
+├── service             # Regras de Negócio (Orquestrador)
+└── strategy            # Lógica de Cálculo (Noturno, FDS)
