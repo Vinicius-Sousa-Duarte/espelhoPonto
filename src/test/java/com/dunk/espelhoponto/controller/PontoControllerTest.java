@@ -1,5 +1,6 @@
 package com.dunk.espelhoponto.controller;
 
+import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.dto.NovoRegistroDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
@@ -54,7 +55,7 @@ class PontoControllerTest {
     void deveBaterPontoComSucesso() {
         NovoRegistroDTO dto = new NovoRegistroDTO(TipoRegistro.ENTRADA);
 
-        ResponseEntity<Void> response = pontoController.baterPonto(dto);
+        ResponseEntity<RegistroPontoResponseDTO> response = pontoController.baterPonto(dto);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(pontoService, times(1)).registrar(dto);
@@ -66,7 +67,7 @@ class PontoControllerTest {
         LocalDate inicio = LocalDate.now().minusDays(5);
         LocalDate fim = LocalDate.now();
 
-        SaldoHorasDTO saldoMock = new SaldoHorasDTO("Vinicius", "+00:00", 480L, 480L);
+        SaldoHorasDTO saldoMock = new SaldoHorasDTO("Vinicius", "+00:00", 480L, 480L, null);
 
         try (MockedStatic<SecurityContextHolder> mockedSecurity = Mockito.mockStatic(SecurityContextHolder.class)) {
 

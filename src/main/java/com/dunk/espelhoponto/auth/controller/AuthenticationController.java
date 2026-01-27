@@ -1,54 +1,66 @@
-package com.dunk.espelhoponto.auth.controller;
+package com.dunk.espelhoponto.controller;
 
 import com.dunk.espelhoponto.auth.dto.AuthenticationDTO;
 import com.dunk.espelhoponto.auth.dto.LoginResponseDTO;
 import com.dunk.espelhoponto.auth.dto.RegisterDTO;
 import com.dunk.espelhoponto.entity.Usuario;
+import com.dunk.espelhoponto.dto.RegistroUsuarioResponseDTO;
+import com.dunk.espelhoponto.exception.RegraNegocioException;
 import com.dunk.espelhoponto.infra.security.service.TokenService;
 import com.dunk.espelhoponto.repository.UsuarioRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private UsuarioRepository repository;
-    @Autowired
-    private TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
+    private final UsuarioRepository repository;
+    private final TokenService tokenService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        var token = tokenService.generateToken((Usuario) Objects.requireNonNull(auth.getPrincipal()));
+        var token = tokenService.generateToken((Usuario) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data){
-        if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<RegistroUsuarioResponseDTO> register(@RequestBody @Valid RegisterDTO data) {
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        if (this.repository.existsByLogin(data.login())) {
+            throw new RegraNegocioException("O login '" + data.login() + "' já está em uso.");
+        }
+
+        String encryptedPassword = passwordEncoder.encode(data.password());
         Usuario newUser = new Usuario(data.login(), encryptedPassword, data.role());
 
         this.repository.save(newUser);
 
-        return ResponseEntity.ok().build();
+        var response = new RegistroUsuarioResponseDTO(
+                newUser.getLogin(),
+                newUser.getRegra(),
+                "Usuário criado com sucesso!",
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

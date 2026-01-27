@@ -1,6 +1,7 @@
 package com.dunk.espelhoponto.controller;
 
 import com.dunk.espelhoponto.dto.NovoRegistroDTO;
+import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.service.PontoService;
@@ -22,9 +23,9 @@ public class PontoController {
     private final PontoService service;
 
     @PostMapping
-    public ResponseEntity<Void> baterPonto(@RequestBody @Valid NovoRegistroDTO dto) {
-        service.registrar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<RegistroPontoResponseDTO> baterPonto(@RequestBody @Valid NovoRegistroDTO dto) {
+        var response = service.registrar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/saldo")

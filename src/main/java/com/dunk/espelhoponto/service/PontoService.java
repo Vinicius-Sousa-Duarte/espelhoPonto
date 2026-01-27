@@ -1,95 +1,133 @@
 package com.dunk.espelhoponto.service;
 
-import com.dunk.espelhoponto.dto.NovoRegistroDTO;
-import com.dunk.espelhoponto.dto.SaldoHorasDTO;
+import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.entity.Ponto;
 import com.dunk.espelhoponto.entity.Usuario;
+import com.dunk.espelhoponto.dto.NovoRegistroDTO;
+import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.enums.TipoRegistro;
+import com.dunk.espelhoponto.exception.RegraNegocioException;
 import com.dunk.espelhoponto.repository.PontoRepository;
+import com.dunk.espelhoponto.strategy.CalculoAdicionalNoturno;
+import com.dunk.espelhoponto.strategy.CalculoFimDeSemana;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PontoService {
 
-    private static final long JORNADA_DIARIA_MINUTOS = 8 * 60; // 8 Horas
     private final PontoRepository repository;
 
-    @Transactional
-    public void registrar(NovoRegistroDTO dto) {
+    private final CalculoAdicionalNoturno estrategiaNoturna;
+    private final CalculoFimDeSemana estrategiaFds;
+
+    public RegistroPontoResponseDTO registrar(NovoRegistroDTO dto) {
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        LocalDateTime agora = LocalDateTime.now();
 
-        Ponto ponto = Ponto.builder()
-                .usuario(usuarioLogado)
-                .dataHora(LocalDateTime.now())
-                .tipo(dto.tipo())
-                .build();
+        var ultimoPontoOpt = repository.findTopByUsuarioOrderByDataHoraDesc(usuarioLogado);
+        String aviso = null;
 
-        repository.save(ponto);
-    }
+        if (ultimoPontoOpt.isPresent()) {
+            Ponto ultimoPonto = ultimoPontoOpt.get();
+            long minutosDiferenca = java.time.temporal.ChronoUnit.MINUTES.between(ultimoPonto.getDataHora(), agora);
 
-    /**
-     * Agora o método espera o objeto Usuario, garantindo que buscamos pelo ID correto
-     * e não por uma String que poderia ser duplicada ou errada.
-     */
-    public SaldoHorasDTO calcularBancoHoras(Usuario usuario, LocalDate inicio, LocalDate fim) {
-
-        List<Ponto> pontos = repository.findByUsuarioAndDataHoraBetweenOrderByDataHoraAsc(
-                usuario, inicio.atStartOfDay(), fim.atTime(LocalTime.MAX));
-
-        Map<LocalDate, List<Ponto>> pontosPorDia = pontos.stream()
-                .collect(Collectors.groupingBy(p -> p.getDataHora().toLocalDate()));
-
-        long saldoGeralMinutos = 0;
-        long totalTrabalhado = 0;
-
-        long totalEsperado = pontosPorDia.size() * JORNADA_DIARIA_MINUTOS;
-
-        for (List<Ponto> registrosDoDia : pontosPorDia.values()) {
-            long minutosNoDia = calcularMinutosTrabalhadosNoDia(registrosDoDia);
-            totalTrabalhado += minutosNoDia;
-            saldoGeralMinutos += (minutosNoDia - JORNADA_DIARIA_MINUTOS);
+            if (minutosDiferenca < 5) {
+                throw new RegraNegocioException("Espere 5 minutos! Último registro foi há " + minutosDiferenca + " min.");
+            }
+            if (dto.tipo() == TipoRegistro.ENTRADA && ultimoPonto.getTipo() == TipoRegistro.SAIDA) {
+                if (minutosDiferenca < 60) {
+                    aviso = "ALERTA: Intervalo de descanso inferior a 1 hora (" + minutosDiferenca + " min). Isso pode gerar horas extras ou infração.";
+                }
+            }
         }
 
-        return new SaldoHorasDTO(
-                usuario.getLogin(),
-                formatarSaldo(saldoGeralMinutos),
-                totalTrabalhado,
-                totalEsperado
-        );
+        Ponto ponto = Ponto.builder().usuario(usuarioLogado).dataHora(agora).tipo(dto.tipo()).build();
+        repository.save(ponto);
+
+        return new RegistroPontoResponseDTO("Ponto de " + dto.tipo() + " registrado com sucesso!", aviso, ponto.getTipo(), ponto.getDataHora());
     }
 
-    private long calcularMinutosTrabalhadosNoDia(List<Ponto> pontos) {
-        long minutos = 0;
+    public SaldoHorasDTO calcularBancoHoras(Usuario usuario, LocalDate inicio, LocalDate fim) {
+        List<Ponto> pontos = repository.findByUsuarioAndDataHoraBetweenOrderByDataHoraAsc(usuario, inicio.atStartOfDay(), fim.atTime(23, 59, 59));
+
+        long minutosTrabalhados = 0;
+        List<String> avisos = new ArrayList<>();
+
+        LocalDate diaAtual = null;
+        List<Ponto> pontosDoDia = new ArrayList<>();
+
+        for (Ponto ponto : pontos) {
+            LocalDate dataPonto = ponto.getDataHora().toLocalDate();
+
+            if (diaAtual != null && !dataPonto.equals(diaAtual)) {
+                minutosTrabalhados += processarDia(pontosDoDia, avisos);
+                pontosDoDia.clear();
+            }
+
+            diaAtual = dataPonto;
+            pontosDoDia.add(ponto);
+        }
+        if (!pontosDoDia.isEmpty()) {
+            minutosTrabalhados += processarDia(pontosDoDia, avisos);
+        }
+
+        long minutosEsperados = (long) (pontos.stream().map(p -> p.getDataHora().toLocalDate()).distinct().count() * 480); // 8h por dia trabalhado
+
+        long saldo = minutosTrabalhados - minutosEsperados;
+        String sinal = saldo >= 0 ? "+" : "-";
+        String saldoFormatado = String.format("%s%02d:%02d", sinal, Math.abs(saldo) / 60, Math.abs(saldo) % 60);
+
+        return new SaldoHorasDTO(usuario.getUsername(), saldoFormatado, minutosTrabalhados, minutosEsperados, avisos);
+    }
+
+    private long processarDia(List<Ponto> pontos, List<String> avisos) {
+        long minutosNoDia = 0;
+        boolean teveAlmoco = false;
 
         for (int i = 0; i < pontos.size() - 1; i++) {
             Ponto atual = pontos.get(i);
             Ponto proximo = pontos.get(i + 1);
 
             if (atual.getTipo() == TipoRegistro.ENTRADA && proximo.getTipo() == TipoRegistro.SAIDA) {
-                minutos += Duration.between(atual.getDataHora(), proximo.getDataHora()).toMinutes();
-                i++;
+
+                if (isFimDeSemana(atual.getDataHora())) {
+                    minutosNoDia += estrategiaFds.calcular(atual.getDataHora(), proximo.getDataHora());
+                    avisos.add("Dia " + atual.getDataHora().toLocalDate() + ": Fim de semana contabilizado (100%).");
+                } else {
+                    minutosNoDia += estrategiaNoturna.calcular(atual.getDataHora(), proximo.getDataHora());
+                }
+            }
+
+            if (atual.getTipo() == TipoRegistro.SAIDA && proximo.getTipo() == TipoRegistro.ENTRADA) {
+                long minutosIntervalo = Duration.between(atual.getDataHora(), proximo.getDataHora()).toMinutes();
+
+                if (minutosIntervalo < 60) {
+                    avisos.add("INFRAÇÃO: Intervalo interjornada menor que 1h no dia " + atual.getDataHora().toLocalDate() + " (" + minutosIntervalo + " min).");
+                }
+                teveAlmoco = true;
             }
         }
-        return minutos;
+
+        if (pontos.size() > 2 && !teveAlmoco) {
+            avisos.add("ALERTA: Possível falta de registro de intervalo no dia " + pontos.get(0).getDataHora().toLocalDate());
+        }
+
+        return minutosNoDia;
     }
 
-    private String formatarSaldo(long minutos) {
-        long absMinutos = Math.abs(minutos);
-        long horas = absMinutos / 60;
-        long mins = absMinutos % 60;
-        String sinal = minutos >= 0 ? "+" : "-";
-        return String.format("%s%02d:%02d", sinal, horas, mins);
+    private boolean isFimDeSemana(LocalDateTime data) {
+        DayOfWeek d = data.getDayOfWeek();
+        return d == DayOfWeek.SATURDAY || d == DayOfWeek.SUNDAY;
     }
 }
