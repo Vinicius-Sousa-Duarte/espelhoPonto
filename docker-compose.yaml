@@ -1,0 +1,40 @@
+services:
+  # Serviço 1: Banco de Dados PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: espelho-ponto-db
+    environment:
+      - POSTGRES_DB=pontodb
+      - POSTGRES_USER=dunk
+      - POSTGRES_PASSWORD=dunkpass
+    ports:
+      - "5433:5432" # Libera a porta para você acessar via DBeaver/PgAdmin
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # Persistência (não perde dados ao reiniciar)
+    networks:
+      - ponto-network
+
+  # Serviço 2: Sua Aplicação Spring Boot
+  app:
+    build: .
+    container_name: espelho-ponto-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db # Espera o banco iniciar (mas não garante que está pronto, Spring tenta reconectar)
+    environment:
+      # Sobrescreve as configurações do application.properties
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pontodb
+      - SPRING_DATASOURCE_USERNAME=dunk
+      - SPRING_DATASOURCE_PASSWORD=dunkpass
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update # Cria/Atualiza tabelas automaticamente
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    networks:
+      - ponto-network
+
+volumes:
+  postgres-data:
+
+networks:
+  ponto-network:
+    driver: bridge
