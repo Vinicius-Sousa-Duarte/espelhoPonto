@@ -3,7 +3,6 @@ package com.dunk.espelhoponto.auth.controller;
 import com.dunk.espelhoponto.auth.dto.AuthenticationDTO;
 import com.dunk.espelhoponto.auth.dto.LoginResponseDTO;
 import com.dunk.espelhoponto.auth.dto.RegisterDTO;
-import com.dunk.espelhoponto.controller.AuthenticationController;
 import com.dunk.espelhoponto.dto.RegistroUsuarioResponseDTO;
 import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.enums.RegraUsuario;
@@ -51,7 +50,7 @@ class AuthenticationControllerTest {
         RegisterDTO dto = new RegisterDTO("novo@email.com", "senha123", RegraUsuario.USER);
 
         when(repository.existsByLogin(dto.login())).thenReturn(false);
-        when(passwordEncoder.encode(dto.password())).thenReturn("senhaCriptografada");
+        when(passwordEncoder.encode(dto.senha())).thenReturn("senhaCriptografada");
 
         ResponseEntity<RegistroUsuarioResponseDTO> response = controller.register(dto);
 
