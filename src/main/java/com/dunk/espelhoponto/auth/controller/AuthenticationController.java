@@ -1,4 +1,4 @@
-package com.dunk.espelhoponto.controller;
+package com.dunk.espelhoponto.auth.controller;
 
 import com.dunk.espelhoponto.auth.dto.AuthenticationDTO;
 import com.dunk.espelhoponto.auth.dto.LoginResponseDTO;
@@ -49,8 +49,8 @@ public class AuthenticationController {
             throw new RegraNegocioException("O login '" + data.login() + "' já está em uso.");
         }
 
-        String encryptedPassword = passwordEncoder.encode(data.password());
-        Usuario newUser = new Usuario(data.login(), encryptedPassword, data.role());
+        String encryptedPassword = passwordEncoder.encode(data.senha());
+        Usuario newUser = new Usuario(data.login(), encryptedPassword, data.regra());
 
         this.repository.save(newUser);
 
