@@ -55,7 +55,7 @@ class PontoServiceTest {
 
         service = new PontoService(repository, estrategiaNoturna, estrategiaFds);
 
-        usuarioPadrao = new Usuario(UUID.randomUUID(), "teste@dunk.com", "123", RegraUsuario.USER);
+        usuarioPadrao = new Usuario(UUID.randomUUID(), "teste@dunk.com", "123", "Teste", RegraUsuario.USER);
     }
 
     @Test

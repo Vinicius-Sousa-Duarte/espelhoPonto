@@ -4,23 +4,28 @@ import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse } from '../interfaces/auth-dto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
   private readonly API_URL = '/auth';
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials)
-      .pipe(
-        tap(response => {
-          localStorage.setItem('auth-token', response.token);
-        })
-      );
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
+      tap((response) => {
+        localStorage.setItem('auth-token', response.token);
+        localStorage.setItem('user-name', response.nome);
+      }),
+    );
+  }
+
+  getUserName(): string {
+    return localStorage.getItem('user-name') || 'Usuário';
   }
 
   logout(): void {
     localStorage.removeItem('auth-token');
+    localStorage.removeItem('user-name');
   }
 
   isLoggedIn(): boolean {
