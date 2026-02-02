@@ -39,7 +39,9 @@ public class AuthenticationController {
 
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
 
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        Usuario usuario = (Usuario) auth.getPrincipal();
+
+        return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getNome()));
     }
 
     @PostMapping("/register")
@@ -50,7 +52,7 @@ public class AuthenticationController {
         }
 
         String encryptedPassword = passwordEncoder.encode(data.senha());
-        Usuario newUser = new Usuario(data.login(), encryptedPassword, data.regra());
+        Usuario newUser = new Usuario(data.login(), encryptedPassword, data.nome(), data.regra());
 
         this.repository.save(newUser);
 

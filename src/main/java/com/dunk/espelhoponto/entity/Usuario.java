@@ -29,12 +29,15 @@ public class Usuario extends Auditable implements UserDetails {
 
     private String senha;
 
+    private String nome;
+
     @Enumerated(EnumType.STRING)
     private RegraUsuario regra;
 
-    public Usuario(String login, String senha, RegraUsuario regra) {
+    public Usuario(String login, String senha, String nome, RegraUsuario regra) {
         this.login = login;
         this.senha = senha;
+        this.nome = nome;
         this.regra = regra;
     }
 

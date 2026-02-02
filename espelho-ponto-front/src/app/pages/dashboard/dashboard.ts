@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
 import { PontoService } from '../../services/ponto';
+import { AuthService } from '../../services/auth';
 import { SaldoDTO } from '../../interfaces/ponto-dto';
 
 @Component({
@@ -24,12 +25,17 @@ import { SaldoDTO } from '../../interfaces/ponto-dto';
 })
 export class DashboardComponent implements OnInit {
   private pontoService = inject(PontoService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
   saldoDados: SaldoDTO | null = null;
   hoje = new Date();
 
+  nomeUsuario: string = ''; 
+
   ngOnInit() {
+    const nomeCompleto = this.authService.getUserName();
+    this.nomeUsuario = nomeCompleto.split(' ')[0];
     this.carregarSaldo();
   }
 

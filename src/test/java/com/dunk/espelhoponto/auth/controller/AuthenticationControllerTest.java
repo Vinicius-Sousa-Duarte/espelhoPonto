@@ -47,7 +47,7 @@ class AuthenticationControllerTest {
     @DisplayName("Deve registrar usuário com sucesso (Retorna 201 e DTO)")
     void deveRegistrarUsuarioComSucesso() {
 
-        RegisterDTO dto = new RegisterDTO("novo@email.com", "senha123", RegraUsuario.USER);
+        RegisterDTO dto = new RegisterDTO("novo@email.com", "senha123", "Teste", RegraUsuario.USER);
 
         when(repository.existsByLogin(dto.login())).thenReturn(false);
         when(passwordEncoder.encode(dto.senha())).thenReturn("senhaCriptografada");
@@ -66,7 +66,7 @@ class AuthenticationControllerTest {
     @DisplayName("Deve impedir cadastro duplicado (Lança RegraNegocioException)")
     void deveLancarErroSeUsuarioJaExiste() {
 
-        RegisterDTO dto = new RegisterDTO("existente@email.com", "senha123", RegraUsuario.USER);
+        RegisterDTO dto = new RegisterDTO("existente@email.com", "senha123","Teste", RegraUsuario.USER);
 
         when(repository.existsByLogin(dto.login())).thenReturn(true);
 
@@ -86,7 +86,7 @@ class AuthenticationControllerTest {
 
         AuthenticationDTO dto = new AuthenticationDTO("vinicius@email.com", "123");
         Authentication authMock = mock(Authentication.class);
-        Usuario usuarioMock = new Usuario(UUID.randomUUID(), "vinicius@email.com", "cripto", RegraUsuario.USER);
+        Usuario usuarioMock = new Usuario(UUID.randomUUID(), "vinicius@email.com", "cripto", "Teste", RegraUsuario.USER);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authMock);
