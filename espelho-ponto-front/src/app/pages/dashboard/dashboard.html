@@ -1,0 +1,58 @@
+<div class="dashboard-header">
+  <div>
+    <h1>Olá, Vinicius 👋</h1>
+    <p>Aqui está o resumo da sua jornada hoje.</p>
+  </div>
+  <div class="date-badge">
+    {{ hoje | date:'EEEE, d MMMM' }}
+  </div>
+</div>
+
+<div class="dashboard-grid" *ngIf="saldoDados; else loading">
+  
+  <mat-card class="modern-card highlight-card">
+    <div class="card-icon-bg">
+      <mat-icon>schedule</mat-icon>
+    </div>
+    <mat-card-content>
+      <span class="label">Banco de Horas</span>
+      <div class="value" [class.positive]="saldoDados.saldoTotal?.startsWith('+')">
+        {{ saldoDados.saldoTotal }}
+      </div>
+      <p class="subtext">
+        Esperado: {{ saldoDados.minutosEsperados / 60 | number:'1.0-1' }}h 
+        <span class="dot">•</span> 
+        Realizado: {{ saldoDados.minutosTrabalhados / 60 | number:'1.1-1' }}h
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="modern-card action-card">
+    <mat-card-header>
+      <mat-card-title>Registro de Ponto</mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="action-buttons">
+      <button mat-flat-button color="primary" class="btn-entrada" (click)="registrarPonto('ENTRADA')">
+        <mat-icon>login</mat-icon> REGISTRAR ENTRADA
+      </button>
+      <button mat-stroked-button color="warn" class="btn-saida" (click)="registrarPonto('SAIDA')">
+        <mat-icon>logout</mat-icon> SAIDA
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+</div>
+
+<ng-template #loading>
+  <div class="loading-state" style="text-align: center; padding: 40px; color: #94a3b8;">
+    <mat-spinner diameter="40" style="margin: 0 auto 16px auto;"></mat-spinner>
+    <p>Sincronizando dados...</p>
+  </div>
+</ng-template>
+
+<div class="alert-area" *ngIf="saldoDados?.avisos?.length">
+  <div *ngFor="let aviso of saldoDados?.avisos" class="modern-alert">
+    <mat-icon>info</mat-icon>
+    <span>{{ aviso }}</span>
+  </div>
+</div>

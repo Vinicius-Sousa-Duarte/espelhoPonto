@@ -1,0 +1,74 @@
+.sidenav-container {
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.sidenav {
+  width: 260px; 
+  background: #ffffff;
+  border-right: none; 
+  box-shadow: 4px 0 24px rgba(0,0,0,0.02); 
+  padding: 24px 16px;
+  
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px 32px 12px;
+    
+    mat-icon { 
+      color: #3f51b5; 
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+    
+    span {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #0f172a;
+    }
+  }
+}
+
+mat-nav-list {
+  a {
+    margin-bottom: 8px;
+    border-radius: 8px; 
+    color: #64748b; 
+    height: 48px;
+    
+    mat-icon {
+      margin-right: 12px;
+      color: #94a3b8;
+    }
+
+    &:hover {
+      background-color: #f1f5f9;
+      color: #334155;
+    }
+
+    &.active-link {
+      background-color: #e0e7ff; 
+      color: #3f51b5; 
+      font-weight: 600;
+
+      mat-icon {
+        color: #3f51b5;
+      }
+    }
+  }
+}
+
+mat-toolbar {
+  background: transparent !important; 
+  color: #1e293b !important; 
+  box-shadow: none !important; 
+  padding: 0 32px;
+  height: 80px; 
+}
+
+.content-wrapper {
+  padding: 0 32px 32px 32px; 
+}

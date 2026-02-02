@@ -1,0 +1,75 @@
+@use '@angular/material' as mat;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
+
+html {
+  height: 100%;
+  
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto, 
+    density: 0,
+  ));
+}
+
+body {
+  color-scheme: light;
+
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+
+  font-family: 'Inter', "Helvetica Neue", sans-serif !important;
+  font-feature-settings: "cv11", "ss01";
+
+  background-color: #f8f9fa !important;
+  color: #1e293b;
+
+  margin: 0;
+  height: 100%;
+}
+
+.mat-mdc-card.modern-card, .mat-mdc-card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(0,0,0,0.06);
+  background-color: #ffffff !important;
+  
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+  
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+                0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-flat-button, .mat-mdc-stroked-button {
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  height: 44px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.mat-mdc-form-field {
+  .mdc-text-field--filled {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+  }
+  
+  .mdc-line-ripple { 
+    display: none !important; 
+  }
+}
+
+.material-icons {
+  font-family: 'Material Icons Outlined' !important;
+}

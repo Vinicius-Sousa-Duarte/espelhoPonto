@@ -1,0 +1,59 @@
+<div class="login-layout">
+  
+  <div class="form-side">
+    <div class="form-container">
+      
+      <div class="header">
+        <div class="logo">
+          <mat-icon>watch_later</mat-icon>
+          <span>EspelhoPonto</span>
+        </div>
+        <h1>Bem-vindo de volta! 👋</h1>
+        <p>Insira seus dados para acessar o painel.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        
+        <mat-form-field appearance="outline" class="modern-input">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="login" placeholder="ex: usuario@empresa.com">
+          <mat-icon matPrefix class="icon-input">mail_outline</mat-icon>
+          <mat-error *ngIf="form.get('login')?.hasError('required')">O email é obrigatório</mat-error>
+          <mat-error *ngIf="form.get('login')?.hasError('email')">Email inválido</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="modern-input">
+          <mat-label>Senha</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+          <mat-icon matPrefix class="icon-input">lock_open</mat-icon>
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="form.get('password')?.hasError('required')">Senha obrigatória</mat-error>
+        </mat-form-field>
+
+        <div class="forgot-password">
+          <a href="#">Esqueceu a senha?</a>
+        </div>
+
+        <button mat-flat-button color="primary" class="btn-login" type="submit" [disabled]="form.invalid">
+          ENTRAR NA CONTA
+        </button>
+
+      </form>
+
+      <div class="footer">
+        <p>Ainda não tem conta? <a href="#">Fale com o RH</a></p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="visual-side">
+    <div class="overlay">
+      <h2>Gestão de Ponto Inteligente</h2>
+      <p>Controle suas horas, visualize seu banco de horas e receba alertas em tempo real.</p>
+    </div>
+  </div>
+
+</div>
