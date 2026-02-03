@@ -13,10 +13,10 @@ import { AuthService } from '../../services/auth';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
     MatSnackBarModule,
     MatProgressSpinnerModule
   ],
@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit {
 
     this.pontoService.getSaldo(inicio, fim).subscribe({
       next: (dados) => {
-        this.saldoDados = dados; 
+        this.saldoDados = dados;
       },
       error: (err) => {
         console.error('Erro ao carregar saldo', err);
@@ -71,7 +71,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         const msg = res.aviso ? `${res.mensagem} ⚠️ ${res.aviso}` : res.mensagem;
         this.snackBar.open(msg, 'OK', { duration: 5000 });
-        this.carregarSaldo(); 
+        this.carregarSaldo();
       },
       error: (err) => {
         const msgErro = err.error?.mensagem || 'Erro ao registrar ponto';

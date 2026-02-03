@@ -15,6 +15,9 @@ public record RegisterDTO(
         @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
         String senha,
 
+        @NotBlank(message = "O nome do usuário é obrigatório")
+        String nome,
+
         @NotNull(message = "A regra de acesso (role) é obrigatória")
         RegraUsuario regra
 ) {}

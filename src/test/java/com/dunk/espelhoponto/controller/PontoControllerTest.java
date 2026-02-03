@@ -47,7 +47,7 @@ class PontoControllerTest {
 
     @BeforeEach
     void setUp() {
-        usuarioMock = new Usuario(UUID.randomUUID(), "vinicius@email.com", "senha", RegraUsuario.USER);
+        usuarioMock = new Usuario(UUID.randomUUID(), "vinicius@email.com", "senha", "teste", RegraUsuario.USER);
     }
 
     @Test
