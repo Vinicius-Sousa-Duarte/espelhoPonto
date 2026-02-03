@@ -1,14 +1,22 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, importProvidersFrom } from '@angular/core'; 
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient, withFetch } from '@angular/common/http'; 
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
+import { MAT_DATE_LOCALE } from '@angular/material/core'; 
+
+registerLocaleData(localePt); 
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), 
-    provideRouter(routes), 
+    provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withFetch()) 
+    provideHttpClient(withInterceptorsFromDi()),
+    
+    { provide: LOCALE_ID, useValue: 'pt-BR' }, 
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' } 
   ]
 };

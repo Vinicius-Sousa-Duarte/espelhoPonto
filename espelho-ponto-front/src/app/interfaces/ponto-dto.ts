@@ -16,3 +16,10 @@ export interface SaldoDTO {
   minutosEsperados: number;
   avisos: string[];
 }
+
+export interface PontoRegistro {
+  id: string;
+  dataHora: string;
+  tipo: 'ENTRADA' | 'SAIDA';
+  observacao?: string; 
+}
