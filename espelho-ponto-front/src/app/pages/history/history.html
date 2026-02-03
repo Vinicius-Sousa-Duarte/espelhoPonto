@@ -1,0 +1,67 @@
+<div class="page-header">
+  <div>
+    <h1>Histórico de Pontos</h1>
+    <p>Visualize e filtre seus registros de entrada e saída.</p>
+  </div>
+</div>
+
+<div class="filter-section">
+  <mat-form-field appearance="outline" class="date-filter">
+    <mat-label>Selecione um período</mat-label>
+    <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+      <input matStartDate formControlName="start" placeholder="Início">
+      <input matEndDate formControlName="end" placeholder="Fim" (dateChange)="buscarHistorico()">
+    </mat-date-range-input>
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-date-range-picker #picker></mat-date-range-picker>
+  </mat-form-field>
+</div>
+
+<mat-card class="modern-card table-container">
+  <table mat-table [dataSource]="dataSource" class="full-width-table">
+
+    <ng-container matColumnDef="data">
+      <th mat-header-cell *matHeaderCellDef> DATA </th>
+      <td mat-cell *matCellDef="let element" class="date-cell"> 
+        {{ element.dataHora | date:'dd/MM/yyyy' }} 
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="hora">
+      <th mat-header-cell *matHeaderCellDef> HORA </th>
+      <td mat-cell *matCellDef="let element" class="time-cell"> 
+        {{ element.dataHora | date:'HH:mm' }} 
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="tipo">
+      <th mat-header-cell *matHeaderCellDef> TIPO </th>
+      <td mat-cell *matCellDef="let element">
+        <span class="status-badge" 
+              [class.entrada]="element.tipo === 'ENTRADA'"
+              [class.saida]="element.tipo === 'SAIDA'">
+          {{ element.tipo }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> STATUS </th>
+      <td mat-cell *matCellDef="let element">
+        <div class="check-icon">
+          <mat-icon>check_circle</mat-icon> <span>Registrado</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell empty-state" colspan="4">
+        <mat-icon>event_busy</mat-icon>
+        Nenhum registro encontrado neste período.
+      </td>
+    </tr>
+  </table>
+</mat-card>
