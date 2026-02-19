@@ -1,5 +1,6 @@
 package com.dunk.espelhoponto.service;
 
+import com.dunk.espelhoponto.dto.DiaJornadaDTO;
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.entity.Ponto;
 import com.dunk.espelhoponto.entity.Usuario;
@@ -13,12 +14,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +107,57 @@ public class PontoService {
         String saldoFormatado = String.format("%s%02d:%02d", sinal, Math.abs(saldo) / 60, Math.abs(saldo) % 60);
 
         return new SaldoHorasDTO(usuario.getUsername(), saldoFormatado, minutosTrabalhados, minutosEsperados, avisos);
+    }
+
+    public List<DiaJornadaDTO> obterJornadaUltimosSeteDias() {
+        Usuario usuario = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        LocalDate hoje = LocalDate.now();
+        LocalDate seteDiasAtras = hoje.minusDays(6);
+
+        List<Ponto> pontos = repository.findByUsuarioAndDataHoraBetweenOrderByDataHoraAsc(
+                usuario,
+                seteDiasAtras.atStartOfDay(),
+                hoje.atTime(LocalTime.MAX)
+        );
+
+        Map<LocalDate, List<Ponto>> pontosPorDia = pontos.stream()
+                .collect(Collectors.groupingBy(p -> p.getDataHora().toLocalDate()));
+
+        List<DiaJornadaDTO> grafico = new ArrayList<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE", new Locale("pt", "BR"));
+
+        for (int i = 0; i <= 6; i++) {
+            LocalDate dataAtual = seteDiasAtras.plusDays(i);
+            List<Ponto> batidasDoDia = pontosPorDia.getOrDefault(dataAtual, List.of());
+
+            long minutosTrabalhados = calcularMinutosDoDia(batidasDoDia);
+
+            double horas = Math.round((minutosTrabalhados / 60.0) * 10.0) / 10.0;
+
+            String nomeDia = dataAtual.format(formatter).replace(".", "");
+            nomeDia = nomeDia.substring(0, 1).toUpperCase() + nomeDia.substring(1);
+
+            grafico.add(new DiaJornadaDTO(nomeDia, horas));
+        }
+
+        return grafico;
+    }
+
+    private long calcularMinutosDoDia(List<Ponto> batidas) {
+        long totalMinutos = 0;
+        Ponto entradaTemporaria = null;
+
+        for (Ponto p : batidas) {
+            if (p.getTipo() == TipoRegistro.ENTRADA) {
+                entradaTemporaria = p;
+            } else if (p.getTipo() == TipoRegistro.SAIDA && entradaTemporaria != null) {
+                totalMinutos += java.time.temporal.ChronoUnit.MINUTES.between(entradaTemporaria.getDataHora(), p.getDataHora());
+                entradaTemporaria = null;
+            }
+        }
+        return totalMinutos;
     }
 
     private long processarDia(List<Ponto> pontos, List<String> avisos) {

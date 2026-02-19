@@ -1,5 +1,6 @@
 package com.dunk.espelhoponto.controller;
 
+import com.dunk.espelhoponto.dto.DiaJornadaDTO;
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.entity.Usuario;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pontos")
@@ -36,5 +38,11 @@ public class PontoController {
         var saldo = service.calcularBancoHoras(usuarioLogado, inicio, fim);
 
         return ResponseEntity.ok(saldo);
+    }
+
+    @GetMapping("/grafico")
+    public ResponseEntity<List<DiaJornadaDTO>> obterDadosGrafico() {
+        List<DiaJornadaDTO> dados = service.obterJornadaUltimosSeteDias();
+        return ResponseEntity.ok(dados);
     }
 }
