@@ -16,3 +16,8 @@ export interface SaldoDTO {
   minutosEsperados: number;
   avisos: string[];
 }
+
+export interface DiaJornadaDTO {
+  dia: string;
+  horas: number;
+}

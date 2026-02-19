@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RegistroPontoRequest, RegistroPontoResponse, SaldoDTO } from '../interfaces/ponto-dto';
+import { RegistroPontoRequest, RegistroPontoResponse, SaldoDTO, DiaJornadaDTO } from '../interfaces/ponto-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +23,12 @@ export class PontoService {
 
   getSaldo(inicio: string, fim: string): Observable<SaldoDTO> {
     return this.http.get<SaldoDTO>(`${this.API_URL}/saldo?inicio=${inicio}&fim=${fim}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  getGraficoSemana(): Observable<DiaJornadaDTO[]> {
+    return this.http.get<DiaJornadaDTO[]>(`${this.API_URL}/grafico`, {
       headers: this.getHeaders()
     });
   }

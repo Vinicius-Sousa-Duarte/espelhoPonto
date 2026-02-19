@@ -7,7 +7,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PontoService } from '../../services/ponto';
 import { AuthService } from '../../services/auth';
-import { SaldoDTO } from '../../interfaces/ponto-dto';
+import { SaldoDTO, DiaJornadaDTO } from '../../interfaces/ponto-dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,6 +28,8 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
+  graficoSemana: { dia: string, horas: number, percentual: number }[] = [];
+
   saldoDados: SaldoDTO | null = null;
   hoje = new Date();
 
@@ -36,7 +38,9 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     const nomeCompleto = this.authService.getUserName();
     this.nomeUsuario = nomeCompleto.split(' ')[0];
+
     this.carregarSaldo();
+    this.carregarGrafico();
   }
 
   carregarSaldo() {
@@ -46,6 +50,22 @@ export class DashboardComponent implements OnInit {
     this.pontoService.getSaldo(inicio, fim).subscribe({
       next: (dados) => this.saldoDados = dados,
       error: (err) => console.error('Erro ao carregar saldo', err)
+    });
+  }
+
+  carregarGrafico() {
+    this.pontoService.getGraficoSemana().subscribe({
+      next: (dados: DiaJornadaDTO[]) => {
+        this.graficoSemana = dados.map(item => {
+          const calcPercentual = (item.horas / 8) * 100;
+          return {
+            dia: item.dia,
+            horas: item.horas,
+            percentual: Math.min(calcPercentual, 100)
+          };
+        });
+      },
+      error: (err) => console.error('Erro ao carregar gráfico', err)
     });
   }
 
@@ -62,6 +82,7 @@ export class DashboardComponent implements OnInit {
         });
 
         this.carregarSaldo();
+        this.carregarGrafico();
       },
       error: (err: any) => {
         const msgErro = err.error?.mensagem || 'Erro ao registrar ponto';
@@ -71,5 +92,11 @@ export class DashboardComponent implements OnInit {
         });
       }
     });
+  }
+
+  removerAviso(index: number) {
+    if (this.saldoDados && this.saldoDados.avisos) {
+      this.saldoDados.avisos.splice(index, 1);
+    }
   }
 }

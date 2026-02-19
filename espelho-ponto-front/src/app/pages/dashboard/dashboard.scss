@@ -38,7 +38,7 @@
     background: #ffffff;
     border: 1px solid #e2e8f0;
     padding: 10px 20px;
-    border-radius: 99px; 
+    border-radius: 99px;
     font-size: 0.9rem;
     font-weight: 600;
     color: #475569;
@@ -114,7 +114,7 @@
   }
 
   &:hover .card-icon-bg mat-icon {
-    transform: rotate(0deg) scale(1.1); 
+    transform: rotate(0deg) scale(1.1);
   }
 
   .label {
@@ -135,8 +135,13 @@
     margin-bottom: 12px;
     letter-spacing: -2px;
 
-    &.positive { color: #10b981; }
-    &.negative { color: #ef4444; }
+    &.positive {
+      color: #10b981;
+    }
+
+    &.negative {
+      color: #ef4444;
+    }
   }
 
   .subtext {
@@ -165,7 +170,7 @@
 
   ::ng-deep .mat-mdc-card-header {
     padding: 24px 32px 0 32px;
-    
+
     .mat-mdc-card-title {
       font-size: 1.25rem;
       font-weight: 700;
@@ -189,7 +194,7 @@
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  border-radius: 20px !important; 
+  border-radius: 20px !important;
   background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
   color: white;
   box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
@@ -224,54 +229,210 @@
 // ==========================================
 // ALERTAS E ESTADOS
 // ==========================================
-.alert-area {
-  margin-top: 32px;
-}
-
 .modern-alert {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
   background: #fffbeb;
   border-left: 5px solid #f59e0b;
-  padding: 20px 24px;
+  padding: 12px 16px 12px 24px;
   border-radius: 16px;
   margin-bottom: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.3s ease;
 
   &:hover {
     transform: translateX(4px);
   }
 
-  mat-icon {
-    color: #f59e0b;
-    font-size: 28px;
-    height: 28px;
-    width: 28px;
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    mat-icon {
+      color: #f59e0b;
+      font-size: 28px;
+      height: 28px;
+      width: 28px;
+    }
+
+    span {
+      color: #92400e;
+      font-weight: 600;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
   }
 
-  span {
-    color: #92400e; 
-    font-weight: 600;
-    font-size: 0.95rem;
-    line-height: 1.4;
+  .close-btn {
+    color: #b45309;
+    opacity: 0.6;
+    transform: scale(0.85);
+    transition: all 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+      background-color: rgba(180, 83, 9, 0.1);
+    }
   }
 }
 
-.loading-state {
+// ==========================================
+// CARD DO GRÁFICO (Chart)
+// ==========================================
+.chart-card {
+  margin-top: 24px;
+  min-height: 320px;
+
+  ::ng-deep .mat-mdc-card-header {
+    padding: 24px 32px 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mat-mdc-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .chart-subtitle {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+  }
+
+  ::ng-deep .mat-mdc-card-content {
+    padding: 32px !important;
+  }
+}
+
+.css-bar-chart {
+  position: relative;
+  height: 200px;
+  display: flex;
+  padding-left: 40px;
+}
+
+.chart-grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 0;
+
+  span {
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    position: relative;
+    top: -8px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 32px;
+      top: 50%;
+      width: calc(100% - 32px);
+      height: 1px;
+      background-color: #f1f5f9;
+      border-top: 1px dashed #e2e8f0;
+    }
+  }
+}
+
+.chart-bars {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  z-index: 1;
+  padding-bottom: 24px;
+}
+
+.bar-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  gap: 24px;
+  position: relative;
+  height: 100%;
+  width: 40px;
 
-  p {
+  .bar-tooltip {
+    position: absolute;
+    top: -30px;
+    background: #1e293b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    white-space: nowrap;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 4px 4px 0;
+      border-style: solid;
+      border-color: #1e293b transparent transparent transparent;
+    }
+  }
+
+  .bar-track {
+    width: 16px;
+    height: 100%;
+    background-color: #f1f5f9;
+    border-radius: 99px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    width: 100%;
+    background: linear-gradient(0deg, #3b82f6 0%, #60a5fa 100%);
+    border-radius: 99px;
+    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.overtime {
+      background: linear-gradient(0deg, #8b5cf6 0%, #a78bfa 100%);
+    }
+  }
+
+  .bar-label {
+    position: absolute;
+    bottom: -24px;
+    font-size: 0.8rem;
+    font-weight: 600;
     color: #64748b;
-    font-weight: 500;
-    font-size: 1.1rem;
-    animation: pulse 2s infinite;
+  }
+
+  &:hover {
+    .bar-fill {
+      filter: brightness(1.1);
+    }
+
+    .bar-tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .bar-label {
+      color: #0f172a;
+    }
   }
 }
 
@@ -279,13 +440,27 @@
 // ANIMAÇÕES & RESPONSIVIDADE
 // ==========================================
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @media (max-width: 768px) {
@@ -295,8 +470,12 @@
     gap: 16px;
     margin-bottom: 32px;
 
-    h1 { font-size: 1.75rem; }
+    h1 {
+      font-size: 1.75rem;
+    }
   }
 
-  .highlight-card .value { font-size: 3rem; }
+  .highlight-card .value {
+    font-size: 3rem;
+  }
 }
