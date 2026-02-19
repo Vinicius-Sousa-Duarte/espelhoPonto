@@ -1,11 +1,9 @@
 package com.dunk.espelhoponto.controller;
 
-import com.dunk.espelhoponto.dto.NovoRegistroDTO;
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.service.PontoService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -23,8 +21,8 @@ public class PontoController {
     private final PontoService service;
 
     @PostMapping
-    public ResponseEntity<RegistroPontoResponseDTO> baterPonto(@RequestBody @Valid NovoRegistroDTO dto) {
-        var response = service.registrar(dto);
+    public ResponseEntity<RegistroPontoResponseDTO> baterPonto() {
+        var response = service.registrar();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

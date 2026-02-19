@@ -8,16 +8,15 @@ import { RegistroPontoRequest, RegistroPontoResponse, SaldoDTO } from '../interf
 })
 export class PontoService {
   private http = inject(HttpClient);
-  private readonly API_URL = '/api/pontos'; 
+  private readonly API_URL = '/api/pontos';
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth-token');
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  registrar(tipo: 'ENTRADA' | 'SAIDA'): Observable<RegistroPontoResponse> {
-    const body: RegistroPontoRequest = { tipo };
-    return this.http.post<RegistroPontoResponse>(this.API_URL, body, {
+  registrar(): Observable<RegistroPontoResponse> {
+    return this.http.post<RegistroPontoResponse>(this.API_URL, {}, {
       headers: this.getHeaders()
     });
   }

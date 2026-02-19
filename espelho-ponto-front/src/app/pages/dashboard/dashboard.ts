@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PontoService } from '../../services/ponto';
 import { AuthService } from '../../services/auth';
 import { SaldoDTO } from '../../interfaces/ponto-dto';
@@ -13,14 +13,14 @@ import { SaldoDTO } from '../../interfaces/ponto-dto';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule 
+    MatProgressSpinnerModule
   ],
-  templateUrl: './dashboard.html', 
+  templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit {
@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit {
   saldoDados: SaldoDTO | null = null;
   hoje = new Date();
 
-  nomeUsuario: string = ''; 
+  nomeUsuario: string = '';
 
   ngOnInit() {
     const nomeCompleto = this.authService.getUserName();
@@ -49,16 +49,26 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  registrarPonto(tipo: 'ENTRADA' | 'SAIDA') {
-    this.pontoService.registrar(tipo).subscribe({
+  registrarPonto() {
+    this.pontoService.registrar().subscribe({
       next: (res) => {
         const msg = res.aviso ? `${res.mensagem} ⚠️ ${res.aviso}` : res.mensagem;
-        this.snackBar.open(msg, 'OK', { duration: 5000 });
+
+        const cor = res.tipo === 'ENTRADA' ? 'success-snackbar' : 'warning-snackbar';
+
+        this.snackBar.open(msg, 'OK', {
+          duration: 5000,
+          panelClass: [cor]
+        });
+
         this.carregarSaldo();
       },
-      error: (err) => {
+      error: (err: any) => {
         const msgErro = err.error?.mensagem || 'Erro ao registrar ponto';
-        this.snackBar.open(msgErro, 'Fechar', { duration: 5000, panelClass: ['error-snackbar'] });
+        this.snackBar.open(msgErro, 'Fechar', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }

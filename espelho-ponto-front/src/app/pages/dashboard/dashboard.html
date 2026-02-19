@@ -27,19 +27,20 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card class="modern-card action-card">
-    <mat-card-header>
-      <mat-card-title>Registro de Ponto</mat-card-title>
-    </mat-card-header>
-    <mat-card-content class="action-buttons">
-      <button mat-flat-button color="primary" class="btn-entrada" (click)="registrarPonto('ENTRADA')">
-        <mat-icon>login</mat-icon> REGISTRAR ENTRADA
-      </button>
-      <button mat-stroked-button color="warn" class="btn-saida" (click)="registrarPonto('SAIDA')">
-        <mat-icon>logout</mat-icon> SAIDA
-      </button>
-    </mat-card-content>
-  </mat-card>
+<mat-card class="modern-card action-card">
+      <mat-card-header>
+        <mat-card-title>Registro Rápido</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="action-buttons single-button-container">
+        <button mat-fab extended color="primary" class="btn-zaap" (click)="registrarPonto()">
+          <mat-icon>fingerprint</mat-icon>
+          <span class="btn-label">REGISTRAR PONTO</span>
+        </button>
+        <p class="hint-text">O sistema identifica automaticamente se é Entrada ou Saída.</p>
+      </mat-card-content>
+      
+    </mat-card>
 
 </div>
 

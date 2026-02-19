@@ -1,4 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+// ==========================================
+// CONTAINER GLOBAL
+// ==========================================
+.dashboard-container {
+  font-family: 'Inter', sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  animation: fadeIn 0.5s ease-out;
+}
 
 // ==========================================
 // CABEÇALHO
@@ -7,42 +18,57 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 40px; 
-  font-family: 'Inter', sans-serif;
+  margin-bottom: 40px;
 
   h1 {
-    font-size: 2rem; 
-    font-weight: 700;
-    margin: 0 0 8px 0;
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0 0 4px 0;
     color: #0f172a;
     letter-spacing: -1px;
   }
-  
-  p { 
-    margin: 0; 
-    color: #64748b; 
-    font-size: 1rem;
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 1.05rem;
   }
-  
+
   .date-badge {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    padding: 8px 16px;
-    border-radius: 12px;
-    font-size: 0.875rem;
+    padding: 10px 20px;
+    border-radius: 99px; 
+    font-size: 0.9rem;
     font-weight: 600;
     color: #475569;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 
 // ==========================================
-// GRID PRINCIPAL
+// GRID E CARDS PADRÃO (Glassmorphism sutil)
 // ==========================================
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
+}
+
+.modern-card {
+  background: #ffffff;
+  border-radius: 24px !important;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
+  }
 }
 
 // ==========================================
@@ -51,86 +77,94 @@
 .highlight-card {
   position: relative;
   overflow: hidden;
-  min-height: 180px; 
+  min-height: 200px;
   display: flex;
   flex-direction: column;
-  justify-content: center; 
-  
+  justify-content: center;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+
   ::ng-deep .mat-mdc-card-content {
-    padding: 32px !important; 
+    padding: 32px 40px !important;
     position: relative;
-    z-index: 2; 
+    z-index: 2;
   }
 
   .card-icon-bg {
     position: absolute;
-    top: -30px;    
-    right: -30px;  
-    width: 140px;  
-    height: 140px;
-    background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 100%);
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.6; 
-    z-index: 1;   
+    z-index: 1;
 
-    mat-icon { 
-      font-size: 64px; 
-      width: 64px; 
-      height: 64px; 
-      color: #4f46e5; 
-      opacity: 0.5;
-      transform: translate(-10px, 10px); 
+    mat-icon {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+      color: #4f46e5;
+      opacity: 0.15;
+      transform: rotate(-15deg);
+      transition: transform 0.5s ease;
     }
+  }
+
+  &:hover .card-icon-bg mat-icon {
+    transform: rotate(0deg) scale(1.1); 
   }
 
   .label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px; 
+    letter-spacing: 1.5px;
     color: #64748b;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .value {
-    font-size: 3.5rem; 
-    font-weight: 800; 
+    font-size: 4rem;
+    font-weight: 800;
     color: #0f172a;
     line-height: 1;
-    margin-bottom: 16px;
-    letter-spacing: -2px; 
+    margin-bottom: 12px;
+    letter-spacing: -2px;
 
-    &.positive { color: #16a34a; } 
-    &.negative { color: #dc2626; } 
+    &.positive { color: #10b981; }
+    &.negative { color: #ef4444; }
   }
 
   .subtext {
     font-size: 0.95rem;
     color: #94a3b8;
     font-weight: 500;
-    
-    .dot { 
-      margin: 0 8px; 
+    display: flex;
+    align-items: center;
+
+    .dot {
+      margin: 0 12px;
       color: #cbd5e1;
+      font-size: 1.2rem;
     }
   }
 }
 
 // ==========================================
-// CARD DE AÇÕES (Botões)
+// CARD DE AÇÕES E BOTÃO ÚNICO
 // ==========================================
 .action-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 180px;
+  min-height: 200px;
 
   ::ng-deep .mat-mdc-card-header {
-    padding: 24px 24px 0 24px;
+    padding: 24px 32px 0 32px;
     
     .mat-mdc-card-title {
       font-size: 1.25rem;
@@ -138,43 +172,57 @@
       color: #1e293b;
     }
   }
+}
 
-  .action-buttons {
-    padding: 24px !important;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.single-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px 32px 32px !important;
+  gap: 16px;
+}
 
-    button {
-      height: 56px !important;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 12px !important;
-      
-      mat-icon { margin-right: 12px; }
-    }
+.btn-zaap {
+  height: 64px !important;
+  width: 100%;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 20px !important; 
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  color: white;
+  box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    .btn-entrada {
-      background-color: #3f51b5;
-      color: white;
-      box-shadow: 0 4px 6px -1px rgba(63, 81, 181, 0.3);
-    }
-    
-    .btn-saida {
-      border: 2px solid #fee2e2;
-      color: #dc2626;
-      background: #fff;
-      
-      &:hover {
-        background: #fef2f2;
-        border-color: #dc2626;
-      }
-    }
+  mat-icon {
+    margin-right: 8px;
+    font-size: 26px;
+    height: 26px;
+    width: 26px;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.5);
+    background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 5px 10px -5px rgba(79, 70, 229, 0.4);
   }
 }
 
+.hint-text {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  text-align: center;
+  margin: 0;
+}
+
 // ==========================================
-// ALERTAS
+// ALERTAS E ESTADOS
 // ==========================================
 .alert-area {
   margin-top: 32px;
@@ -184,27 +232,71 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #fff;
-  border-left: 4px solid #f59e0b;
-  padding: 20px;
-  border-radius: 12px;
+  background: #fffbeb;
+  border-left: 5px solid #f59e0b;
+  padding: 20px 24px;
+  border-radius: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  border: 1px solid rgba(0,0,0,0.05);
-  
-  mat-icon { color: #f59e0b; }
-  span { 
-    color: #334155; 
-    font-weight: 500; 
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px);
+  }
+
+  mat-icon {
+    color: #f59e0b;
+    font-size: 28px;
+    height: 28px;
+    width: 28px;
+  }
+
+  span {
+    color: #92400e; 
+    font-weight: 600;
     font-size: 0.95rem;
+    line-height: 1.4;
   }
 }
 
-// Mobile
-@media (max-width: 600px) {
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 24px;
+
+  p {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 1.1rem;
+    animation: pulse 2s infinite;
+  }
+}
+
+// ==========================================
+// ANIMAÇÕES & RESPONSIVIDADE
+// ==========================================
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 32px;
+
+    h1 { font-size: 1.75rem; }
   }
+
+  .highlight-card .value { font-size: 3rem; }
 }
