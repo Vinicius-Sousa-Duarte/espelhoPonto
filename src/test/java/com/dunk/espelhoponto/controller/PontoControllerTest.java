@@ -1,9 +1,8 @@
 package com.dunk.espelhoponto.controller;
 
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
-import com.dunk.espelhoponto.entity.Usuario;
-import com.dunk.espelhoponto.dto.NovoRegistroDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
+import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.enums.RegraUsuario;
 import com.dunk.espelhoponto.enums.TipoRegistro;
 import com.dunk.espelhoponto.service.PontoService;
@@ -23,9 +22,11 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -51,14 +52,24 @@ class PontoControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar 201 Created ao bater ponto")
+    @DisplayName("Deve retornar 201 Created ao bater ponto (Alternância Automática)")
     void deveBaterPontoComSucesso() {
-        NovoRegistroDTO dto = new NovoRegistroDTO(TipoRegistro.ENTRADA);
+        RegistroPontoResponseDTO responseMock = new RegistroPontoResponseDTO(
+                "Ponto registrado",
+                null,
+                TipoRegistro.ENTRADA, // Simulando que o service calculou ENTRADA
+                LocalDateTime.now()
+        );
 
-        ResponseEntity<RegistroPontoResponseDTO> response = pontoController.baterPonto(dto);
+        when(pontoService.registrar()).thenReturn(responseMock);
+
+        ResponseEntity<RegistroPontoResponseDTO> response = pontoController.baterPonto();
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        verify(pontoService, times(1)).registrar(dto);
+        assertNotNull(response.getBody());
+        assertEquals(TipoRegistro.ENTRADA, response.getBody().tipo());
+
+        verify(pontoService, times(1)).registrar();
     }
 
     @Test

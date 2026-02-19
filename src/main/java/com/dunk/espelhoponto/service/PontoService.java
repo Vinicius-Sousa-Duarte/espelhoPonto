@@ -3,7 +3,6 @@ package com.dunk.espelhoponto.service;
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.entity.Ponto;
 import com.dunk.espelhoponto.entity.Usuario;
-import com.dunk.espelhoponto.dto.NovoRegistroDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.enums.TipoRegistro;
 import com.dunk.espelhoponto.exception.RegraNegocioException;
@@ -18,7 +17,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +29,8 @@ public class PontoService {
     private final CalculoAdicionalNoturno estrategiaNoturna;
     private final CalculoFimDeSemana estrategiaFds;
 
-    public RegistroPontoResponseDTO registrar(NovoRegistroDTO dto) {
+    public RegistroPontoResponseDTO registrar() {
+
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         LocalDateTime agora = LocalDateTime.now();
 
@@ -45,17 +44,34 @@ public class PontoService {
             if (minutosDiferenca < 5) {
                 throw new RegraNegocioException("Espere 5 minutos! Último registro foi há " + minutosDiferenca + " min.");
             }
-            if (dto.tipo() == TipoRegistro.ENTRADA && ultimoPonto.getTipo() == TipoRegistro.SAIDA) {
+        }
+
+        LocalDateTime inicioDoDia = agora.toLocalDate().atStartOfDay();
+        LocalDateTime fimDoDia = agora.toLocalDate().atTime(java.time.LocalTime.MAX);
+
+        long qtdBatidasHoje = repository.countByUsuarioAndDataHoraBetween(usuarioLogado, inicioDoDia, fimDoDia);
+
+        TipoRegistro tipoCalculado = (qtdBatidasHoje % 2 == 0) ? TipoRegistro.ENTRADA : TipoRegistro.SAIDA;
+
+        if (tipoCalculado == TipoRegistro.ENTRADA && ultimoPontoOpt.isPresent()) {
+            Ponto ultimoPonto = ultimoPontoOpt.get();
+            if (ultimoPonto.getTipo() == TipoRegistro.SAIDA) {
+                long minutosDiferenca = java.time.temporal.ChronoUnit.MINUTES.between(ultimoPonto.getDataHora(), agora);
                 if (minutosDiferenca < 60) {
                     aviso = "ALERTA: Intervalo de descanso inferior a 1 hora (" + minutosDiferenca + " min). Isso pode gerar horas extras ou infração.";
                 }
             }
         }
 
-        Ponto ponto = Ponto.builder().usuario(usuarioLogado).dataHora(agora).tipo(dto.tipo()).build();
+        Ponto ponto = Ponto.builder()
+                .usuario(usuarioLogado)
+                .dataHora(agora)
+                .tipo(tipoCalculado)
+                .build();
+
         repository.save(ponto);
 
-        return new RegistroPontoResponseDTO("Ponto de " + dto.tipo() + " registrado com sucesso!", aviso, ponto.getTipo(), ponto.getDataHora());
+        return new RegistroPontoResponseDTO("Ponto de " + tipoCalculado + " registrado com sucesso!", aviso, ponto.getTipo(), ponto.getDataHora());
     }
 
     public SaldoHorasDTO calcularBancoHoras(Usuario usuario, LocalDate inicio, LocalDate fim) {

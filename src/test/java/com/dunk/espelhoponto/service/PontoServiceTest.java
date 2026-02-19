@@ -1,11 +1,11 @@
 package com.dunk.espelhoponto.service;
 
-import com.dunk.espelhoponto.dto.NovoRegistroDTO;
+import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
+import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.entity.Ponto;
 import com.dunk.espelhoponto.entity.Usuario;
-import com.dunk.espelhoponto.dto.SaldoHorasDTO;
-import com.dunk.espelhoponto.enums.TipoRegistro;
 import com.dunk.espelhoponto.enums.RegraUsuario;
+import com.dunk.espelhoponto.enums.TipoRegistro;
 import com.dunk.espelhoponto.exception.RegraNegocioException;
 import com.dunk.espelhoponto.repository.PontoRepository;
 import com.dunk.espelhoponto.strategy.CalculoAdicionalNoturno;
@@ -33,7 +33,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PontoServiceTest {
@@ -58,12 +58,12 @@ class PontoServiceTest {
         usuarioPadrao = new Usuario(UUID.randomUUID(), "teste@dunk.com", "123", "Teste", RegraUsuario.USER);
     }
 
+
     @Test
     @DisplayName("Deve gerar aviso de infração de intervalo intrajornada (< 1h)")
     void deveGerarAvisoDeAlmocoCurto() {
-        LocalDate data = LocalDate.of(2026, 1, 20); // Terça-feira
+        LocalDate data = LocalDate.of(2026, 1, 20);
 
-        // Cenário: Trabalhou das 08h às 12h, voltou às 12:30 (só 30min de almoço)
         List<Ponto> pontos = Arrays.asList(
                 criarPonto(data, 8, 0, TipoRegistro.ENTRADA),
                 criarPonto(data, 12, 0, TipoRegistro.SAIDA),
@@ -77,37 +77,57 @@ class PontoServiceTest {
         SaldoHorasDTO resultado = service.calcularBancoHoras(usuarioPadrao, data, data);
 
         assertFalse(resultado.avisos().isEmpty(), "Deveria ter avisos");
-        assertTrue(resultado.avisos().get(0).contains("menor que 1h"), "A mensagem deve citar o intervalo curto");
-
-        // Minutos trabalhados: 4h (240) + 5h (300) = 540
+        assertTrue(resultado.avisos().get(0).contains("menor que 1h"));
         assertEquals(540L, resultado.minutosTrabalhados());
     }
 
     @Test
-    @DisplayName("Não deve gerar aviso se o almoço for correto (>= 1h)")
-    void naoDeveGerarAvisoAlmocoCorreto() {
-        LocalDate data = LocalDate.of(2026, 1, 20);
+    @DisplayName("Deve registrar ENTRADA automaticamente se for a 1ª batida do dia (Contagem 0)")
+    void deveRegistrarEntradaAutomaticamente() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurity = Mockito.mockStatic(SecurityContextHolder.class)) {
+            mockedSecurity.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getPrincipal()).thenReturn(usuarioPadrao);
 
-        List<Ponto> pontos = Arrays.asList(
-                criarPonto(data, 8, 0, TipoRegistro.ENTRADA),
-                criarPonto(data, 12, 0, TipoRegistro.SAIDA),
-                criarPonto(data, 13, 0, TipoRegistro.ENTRADA),
-                criarPonto(data, 17, 0, TipoRegistro.SAIDA)
-        );
+            when(repository.findTopByUsuarioOrderByDataHoraDesc(usuarioPadrao))
+                    .thenReturn(Optional.empty());
 
-        when(repository.findByUsuarioAndDataHoraBetweenOrderByDataHoraAsc(
-                eq(usuarioPadrao), any(), any())).thenReturn(pontos);
+            when(repository.countByUsuarioAndDataHoraBetween(eq(usuarioPadrao), any(), any()))
+                    .thenReturn(0L);
 
-        SaldoHorasDTO resultado = service.calcularBancoHoras(usuarioPadrao, data, data);
+            RegistroPontoResponseDTO response = service.registrar();
 
-        assertTrue(resultado.avisos().isEmpty(), "Não deveria ter avisos");
-        assertEquals(480L, resultado.minutosTrabalhados());
+            assertEquals(TipoRegistro.ENTRADA, response.tipo());
+            verify(repository, times(1)).save(any(Ponto.class));
+        }
+    }
+
+    @Test
+    @DisplayName("Deve registrar SAÍDA automaticamente se já existe 1 batida hoje (Contagem 1)")
+    void deveRegistrarSaidaAutomaticamente() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurity = Mockito.mockStatic(SecurityContextHolder.class)) {
+            mockedSecurity.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getPrincipal()).thenReturn(usuarioPadrao);
+
+            Ponto pontoAnterior = criarPonto(LocalDate.now(), LocalTime.now().minusHours(1).getHour(), 0, TipoRegistro.ENTRADA);
+
+            when(repository.findTopByUsuarioOrderByDataHoraDesc(usuarioPadrao))
+                    .thenReturn(Optional.of(pontoAnterior));
+
+            when(repository.countByUsuarioAndDataHoraBetween(eq(usuarioPadrao), any(), any()))
+                    .thenReturn(1L);
+
+            RegistroPontoResponseDTO response = service.registrar();
+
+            assertEquals(TipoRegistro.SAIDA, response.tipo());
+            verify(repository, times(1)).save(any(Ponto.class));
+        }
     }
 
     @Test
     @DisplayName("Deve bloquear registro com menos de 5 minutos de diferença")
     void deveBloquearRegistroRapido() {
-
         Ponto pontoRecente = Ponto.builder()
                 .usuario(usuarioPadrao)
                 .dataHora(LocalDateTime.now())
@@ -122,9 +142,7 @@ class PontoServiceTest {
             when(repository.findTopByUsuarioOrderByDataHoraDesc(usuarioPadrao))
                     .thenReturn(Optional.of(pontoRecente));
 
-            NovoRegistroDTO dto = new NovoRegistroDTO(TipoRegistro.SAIDA);
-
-            assertThrows(RegraNegocioException.class, () -> service.registrar(dto));
+            assertThrows(RegraNegocioException.class, () -> service.registrar());
         }
     }
 
