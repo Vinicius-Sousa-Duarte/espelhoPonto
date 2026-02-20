@@ -14,7 +14,7 @@ services:
     networks:
       - ponto-network
 
-  # Serviço 2: Sua Aplicação Spring Boot
+  # Serviço 2: Aplicação Spring Boot
   app:
     build: .
     container_name: espelho-ponto-api

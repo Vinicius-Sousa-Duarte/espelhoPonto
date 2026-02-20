@@ -53,6 +53,10 @@ public class PontoService {
 
         long qtdBatidasHoje = repository.countByUsuarioAndDataHoraBetween(usuarioLogado, inicioDoDia, fimDoDia);
 
+        if (qtdBatidasHoje >= 6){
+            throw new RegraNegocioException("Limite diário atingido! Você já realizou os 6 registros permitidos hoje.");
+        }
+
         TipoRegistro tipoCalculado = (qtdBatidasHoje % 2 == 0) ? TipoRegistro.ENTRADA : TipoRegistro.SAIDA;
 
         if (tipoCalculado == TipoRegistro.ENTRADA && ultimoPontoOpt.isPresent()) {
