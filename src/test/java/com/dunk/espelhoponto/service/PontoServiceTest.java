@@ -146,6 +146,30 @@ class PontoServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("Deve bloquear o registro se o usuário já tiver 6 batidas no dia")
+    void deveBloquearSetimaBatida() {
+        try (MockedStatic<SecurityContextHolder> mockedSecurity = Mockito.mockStatic(SecurityContextHolder.class)) {
+            mockedSecurity.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getPrincipal()).thenReturn(usuarioPadrao);
+
+            when(repository.findTopByUsuarioOrderByDataHoraDesc(usuarioPadrao))
+                    .thenReturn(Optional.empty());
+
+            when(repository.countByUsuarioAndDataHoraBetween(eq(usuarioPadrao), any(), any()))
+                    .thenReturn(6L);
+
+            RegraNegocioException exception = assertThrows(RegraNegocioException.class, () -> {
+                service.registrar();
+            });
+
+            assertEquals("Limite diário atingido! Você já realizou os 6 registros permitidos hoje.", exception.getMessage());
+
+            verify(repository, never()).save(any(Ponto.class));
+        }
+    }
+
     private Ponto criarPonto(LocalDate data, int hora, int minuto, TipoRegistro tipo) {
         return Ponto.builder()
                 .usuario(usuarioPadrao)
