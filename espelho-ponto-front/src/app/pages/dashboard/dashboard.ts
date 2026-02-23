@@ -5,6 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+
 import { PontoService } from '../../services/ponto';
 import { AuthService } from '../../services/auth';
 import { SaldoDTO, DiaJornadaDTO } from '../../interfaces/ponto-dto';
@@ -27,6 +29,7 @@ export class DashboardComponent implements OnInit {
   private pontoService = inject(PontoService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   graficoSemana: { dia: string, horas: number, percentual: number }[] = [];
 
@@ -34,6 +37,7 @@ export class DashboardComponent implements OnInit {
   hoje = new Date();
 
   nomeUsuario: string = '';
+  isAdmin = false;
 
   ngOnInit() {
     const nomeCompleto = this.authService.getUserName();
@@ -41,6 +45,8 @@ export class DashboardComponent implements OnInit {
 
     this.carregarSaldo();
     this.carregarGrafico();
+    
+    this.isAdmin = this.authService.hasRole('ADMIN'); 
   }
 
   carregarSaldo() {
@@ -73,7 +79,6 @@ export class DashboardComponent implements OnInit {
     this.pontoService.registrar().subscribe({
       next: (res) => {
         const msg = res.aviso ? `${res.mensagem} ⚠️ ${res.aviso}` : res.mensagem;
-
         const cor = res.tipo === 'ENTRADA' ? 'success-snackbar' : 'warning-snackbar';
 
         this.snackBar.open(msg, 'OK', {
@@ -98,5 +103,9 @@ export class DashboardComponent implements OnInit {
     if (this.saldoDados && this.saldoDados.avisos) {
       this.saldoDados.avisos.splice(index, 1);
     }
+  }
+
+  irParaCadastro() {
+    this.router.navigate(['/admin/usuarios']); 
   }
 }

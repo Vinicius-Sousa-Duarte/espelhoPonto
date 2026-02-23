@@ -1,95 +1,112 @@
-<div class="dashboard-header">
-  <div>
-    <h1>Olá, {{ nomeUsuario }} 👋</h1>
-    <p>Aqui está o resumo da sua jornada hoje.</p>
-  </div>
-  <div class="date-badge">
-    {{ hoje | date:'EEEE, d MMMM' }}
-  </div>
-</div>
+<div class="dashboard-container">
 
-<div class="dashboard-grid" *ngIf="saldoDados; else loading">
+  <div class="dashboard-header">
+    <div>
+      <h1>Olá, {{ nomeUsuario }} 👋</h1>
+      <p>Aqui está o resumo da sua jornada hoje.</p>
 
-  <mat-card class="modern-card highlight-card">
-    <div class="card-icon-bg">
-      <mat-icon>schedule</mat-icon>
-    </div>
-    <mat-card-content>
-      <span class="label">Banco de Horas</span>
-      <div class="value" [class.positive]="saldoDados.saldoTotal?.startsWith('+')">
-        {{ saldoDados.saldoTotal }}
-      </div>
-      <p class="subtext">
-        Esperado: {{ saldoDados.minutosEsperados / 60 | number:'1.0-1' }}h
-        <span class="dot">•</span>
-        Realizado: {{ saldoDados.minutosTrabalhados / 60 | number:'1.1-1' }}h
-      </p>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="modern-card action-card">
-    <mat-card-header>
-      <mat-card-title>Registro Rápido</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content class="action-buttons single-button-container">
-      <button mat-fab extended color="primary" class="btn-zaap" (click)="registrarPonto()">
-        <mat-icon>fingerprint</mat-icon>
-        <span class="btn-label">REGISTRAR PONTO</span>
+      <button *ngIf="isAdmin" 
+              mat-stroked-button 
+              color="primary" 
+              (click)="irParaCadastro()" 
+              style="margin-top: 12px; border-radius: 8px; border-color: #e2e8f0;">
+        <mat-icon>person_add</mat-icon> NOVO USUÁRIO
       </button>
-      <p class="hint-text">O sistema identifica automaticamente se é Entrada ou Saída.</p>
-    </mat-card-content>
 
-  </mat-card>
-</div>
+    </div>
+    <div class="date-badge">
+      {{ hoje | date:'EEEE, d MMMM' }}
+    </div>
+  </div>
 
-<mat-card class="modern-card chart-card">
-  <mat-card-header>
-    <mat-card-title>Jornada da Semana</mat-card-title>
-    <span class="chart-subtitle">Últimos 7 dias</span>
-  </mat-card-header>
+  <div *ngIf="saldoDados; else loading">
+    
+    <div class="dashboard-grid">
 
-  <mat-card-content>
-    <div class="css-bar-chart">
-      <div class="chart-grid-lines">
-        <span>10h</span>
-        <span>5h</span>
-        <span>0h</span>
-      </div>
+      <mat-card class="modern-card highlight-card">
+        <div class="card-icon-bg">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <mat-card-content>
+          <span class="label">Banco de Horas</span>
+          <div class="value" [class.positive]="saldoDados.saldoTotal.startsWith('+')"
+               [class.negative]="saldoDados.saldoTotal.startsWith('-')">
+            {{ saldoDados.saldoTotal }}
+          </div>
+          <p class="subtext">
+            Esperado: {{ saldoDados.minutosEsperados / 60 | number:'1.0-1' }}h
+            <span class="dot">•</span>
+            Realizado: {{ saldoDados.minutosTrabalhados / 60 | number:'1.1-1' }}h
+          </p>
+        </mat-card-content>
+      </mat-card>
 
-      <div class="chart-bars">
-        <div class="bar-group" *ngFor="let item of graficoSemana">
-          <div class="bar-tooltip">{{ item.horas }}h</div>
-          <div class="bar-track">
-            <div class="bar-fill" [style.height]="item.percentual + '%'" [class.overtime]="item.horas > 8">
+      <mat-card class="modern-card action-card">
+        <mat-card-header>
+          <mat-card-title>Registro Rápido</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="action-buttons single-button-container">
+          <button mat-fab extended color="primary" class="btn-zaap" (click)="registrarPonto()">
+            <mat-icon>fingerprint</mat-icon>
+            <span class="btn-label">REGISTRAR PONTO</span>
+          </button>
+          <p class="hint-text">O sistema identifica automaticamente se é Entrada ou Saída.</p>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <mat-card class="modern-card chart-card">
+      <mat-card-header>
+        <mat-card-title>Jornada da Semana</mat-card-title>
+        <span class="chart-subtitle">Últimos 7 dias</span>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="css-bar-chart">
+          <div class="chart-grid-lines">
+            <span>10h</span>
+            <span>5h</span>
+            <span>0h</span>
+          </div>
+
+          <div class="chart-bars">
+            <div class="bar-group" *ngFor="let item of graficoSemana">
+              <div class="bar-tooltip">{{ item.horas }}h</div>
+              <div class="bar-track">
+                <div class="bar-fill" 
+                     [style.height]="item.percentual + '%'"
+                     [class.overtime]="item.horas > 8">
+                </div>
+              </div>
+              <span class="bar-label">{{ item.dia }}</span>
             </div>
           </div>
-          <span class="bar-label">{{ item.dia }}</span>
         </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div *ngIf="saldoDados.avisos.length" class="alert-area">
+      <div class="modern-alert" *ngFor="let aviso of saldoDados.avisos; let i = index">
+        
+        <div class="alert-content">
+          <mat-icon>warning_amber</mat-icon>
+          <span>{{ aviso }}</span>
+        </div>
+
+        <button mat-icon-button class="close-btn" (click)="removerAviso(i)" aria-label="Fechar aviso">
+          <mat-icon>close</mat-icon>
+        </button>
+
       </div>
     </div>
-  </mat-card-content>
-</mat-card>
 
-<ng-template #loading>
-  <div class="loading-state" style="text-align: center; padding: 40px; color: #94a3b8;">
-    <mat-spinner diameter="40" style="margin: 0 auto 16px auto;"></mat-spinner>
-    <p>Sincronizando dados...</p>
-  </div>
-</ng-template>
-
-<div *ngIf="saldoDados?.avisos?.length" class="alert-area">
-
-  <div class="modern-alert" *ngFor="let aviso of saldoDados!.avisos; let i = index">
-
-    <div class="alert-content">
-      <mat-icon>warning_amber</mat-icon>
-      <span>{{ aviso }}</span>
+  </div> <ng-template #loading>
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Sincronizando dados...</p>
     </div>
+  </ng-template>
 
-    <button mat-icon-button class="close-btn" (click)="removerAviso(i)" aria-label="Fechar aviso">
-      <mat-icon>close</mat-icon>
-    </button>
-
-  </div>
 </div>
