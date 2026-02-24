@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { jwtDecode } from 'jwt-decode';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse } from '../interfaces/auth-dto';
@@ -31,4 +32,27 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!localStorage.getItem('auth-token');
   }
+
+  hasRole(roleEsperada: string): boolean {
+    const token = localStorage.getItem('auth-token');
+    if (!token) return false;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const target = roleEsperada.toUpperCase();
+
+      if (decoded.regra === target) return true;
+
+      if (decoded.role === target) return true;
+
+      if (decoded.authorities && Array.isArray(decoded.authorities)) {
+        return decoded.authorities.includes(`ROLE_${target}`) || decoded.authorities.includes(target);
+      }
+
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 }
+

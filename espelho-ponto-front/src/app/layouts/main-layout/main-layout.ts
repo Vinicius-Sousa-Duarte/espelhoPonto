@@ -1,34 +1,29 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router'; 
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, inject, OnInit } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common'; 
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet, 
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSidenavModule,
-    MatListModule
-  ],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatSidenavModule, MatListModule, MatIconModule],
   templateUrl: './main-layout.html',
   styleUrls: ['./main-layout.scss']
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   private authService = inject(AuthService);
-  private router = inject(Router);
+  isAdmin = false;
+
+  ngOnInit() {
+    this.isAdmin = this.authService.hasRole('ADMIN');
+    console.log('Usuário é admin?', this.isAdmin); 
+  }
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    window.location.reload();
   }
 }

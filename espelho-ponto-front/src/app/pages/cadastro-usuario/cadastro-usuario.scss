@@ -1,0 +1,202 @@
+$primary-color: #4f46e5; 
+$secondary-color: #0ea5e9; 
+$text-main: #0f172a;
+$text-muted: #64748b;
+$card-glass: rgba(255, 255, 255, 0.7);
+
+@keyframes swap-one {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(40vw, 20vh) scale(1.2); 
+  }
+  50% {
+    transform: translate(80vw, 60vh) scale(1); 
+  }
+  75% {
+    transform: translate(40vw, 80vh) scale(1.1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes swap-two {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(-40vw, -20vh) scale(1.2);
+  }
+  50% {
+    transform: translate(-80vw, -60vh) scale(1);
+  }
+  75% {
+    transform: translate(-40vw, -80vh) scale(1.1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes bg-pulse {
+  0%, 100% { background-color: #f8fafc; }
+  50% { background-color: #eff6ff; } 
+}
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  position: relative;
+  overflow: hidden; 
+  
+  animation: bg-pulse 15s ease-in-out infinite;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.6), rgba(79, 70, 229, 0.3)); 
+    border-radius: 50%;
+    top: -20%;
+    left: -15%;
+    filter: blur(90px);
+    z-index: 0;
+    animation: swap-one 24s ease-in-out infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.6), rgba(14, 165, 233, 0.3));
+    border-radius: 50%;
+    bottom: -15%;
+    right: -10%;
+    filter: blur(100px);
+    z-index: 0;
+    animation: swap-two 28s ease-in-out infinite reverse;
+  }
+}
+
+.form-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  
+  background: $card-glass;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  box-shadow: 
+    0 30px 60px -12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    
+  padding: 50px 32px 40px 32px;
+
+  .header-icon-container {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    .icon-circle {
+      width: 84px;
+      height: 84px;
+      background: linear-gradient(135deg, $primary-color, $secondary-color);
+      border-radius: 50%; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4);
+      border: 4px solid rgba(255, 255, 255, 0.95);
+
+      mat-icon {
+        font-size: 38px;
+        width: 38px;
+        height: 38px;
+      }
+    }
+  }
+
+  mat-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 24px;
+    margin-bottom: 32px;
+    padding: 0;
+
+    mat-card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: $text-main;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    mat-card-subtitle {
+      font-size: 0.95rem;
+      color: $text-muted;
+    }
+  }
+
+  mat-card-content {
+    form { display: flex; flex-direction: column; gap: 20px; }
+    .full-width { width: 100%; }
+
+    mat-icon[matSuffix] {
+      color: #94a3b8;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      transition: color 0.3s;
+    }
+
+    mat-form-field.mat-focused mat-icon[matSuffix] { color: $primary-color; }
+
+    .row {
+      display: flex; gap: 16px;
+      .half-width { flex: 1; }
+      @media (max-width: 600px) { flex-direction: column; }
+    }
+  }
+
+  .btn-submit {
+    margin-top: 16px;
+    height: 56px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+    }
+    &:disabled { opacity: 0.7; }
+  }
+}

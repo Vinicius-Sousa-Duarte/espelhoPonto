@@ -24,6 +24,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("sistema-ponto")
                     .withSubject(usuario.getLogin())
+                    .withClaim("regra", usuario.getRegra().toString())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
