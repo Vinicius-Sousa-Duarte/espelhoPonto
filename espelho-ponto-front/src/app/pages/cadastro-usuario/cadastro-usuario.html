@@ -1,8 +1,16 @@
 <div class="page-container">
+  
   <mat-card class="form-card">
+    
+    <div class="header-icon-container">
+      <div class="icon-circle">
+        <mat-icon>person_add</mat-icon>
+      </div>
+    </div>
+
     <mat-card-header>
       <mat-card-title>Novo Usuário</mat-card-title>
-      <mat-card-subtitle>Apenas administradores podem criar contas</mat-card-subtitle>
+      <mat-card-subtitle>Controle de acesso administrativo</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -29,16 +37,16 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Perfil de Acesso</mat-label>
+            <mat-label>Perfil</mat-label>
             <mat-select formControlName="regra">
-              <mat-option value="USER">Funcionário (Padrão)</mat-option>
+              <mat-option value="USER">Funcionário</mat-option>
               <mat-option value="ADMIN">Administrador</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
         <button mat-flat-button color="primary" class="btn-submit" type="submit" [disabled]="form.invalid">
-          CADASTRAR USUÁRIO
+          CRIAR CONTA
         </button>
 
       </form>
