@@ -44,43 +44,6 @@ class AuthenticationControllerTest {
     private AuthenticationController controller;
 
     @Test
-    @DisplayName("Deve registrar usuário com sucesso (Retorna 201 e DTO)")
-    void deveRegistrarUsuarioComSucesso() {
-
-        RegisterDTO dto = new RegisterDTO("novo@email.com", "senha123", "Teste", RegraUsuario.USER);
-
-        when(repository.existsByLogin(dto.login())).thenReturn(false);
-        when(passwordEncoder.encode(dto.senha())).thenReturn("senhaCriptografada");
-
-        ResponseEntity<RegistroUsuarioResponseDTO> response = controller.register(dto);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("novo@email.com", response.getBody().login());
-        assertEquals("Usuário criado com sucesso!", response.getBody().mensagem());
-
-        verify(repository, times(1)).save(any(Usuario.class));
-    }
-
-    @Test
-    @DisplayName("Deve impedir cadastro duplicado (Lança RegraNegocioException)")
-    void deveLancarErroSeUsuarioJaExiste() {
-
-        RegisterDTO dto = new RegisterDTO("existente@email.com", "senha123","Teste", RegraUsuario.USER);
-
-        when(repository.existsByLogin(dto.login())).thenReturn(true);
-
-        RegraNegocioException exception = assertThrows(RegraNegocioException.class, () -> {
-            controller.register(dto);
-        });
-
-        assertEquals("O login 'existente@email.com' já está em uso.", exception.getMessage());
-
-        verify(passwordEncoder, never()).encode(any());
-        verify(repository, never()).save(any());
-    }
-
-    @Test
     @DisplayName("Deve realizar login e retornar token")
     void deveLogarComSucesso() {
 

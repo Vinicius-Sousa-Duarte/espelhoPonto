@@ -1,0 +1,47 @@
+<div class="page-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Novo Usuário</mat-card-title>
+      <mat-card-subtitle>Apenas administradores podem criar contas</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome Completo</mat-label>
+          <input matInput formControlName="nome" placeholder="Ex: João Silva">
+          <mat-icon matSuffix>badge</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email (Login)</mat-label>
+          <input matInput formControlName="login" placeholder="usuario@empresa.com">
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Senha</mat-label>
+            <input matInput type="password" formControlName="senha">
+            <mat-icon matSuffix>key</mat-icon>
+            <mat-hint>Mínimo 6 caracteres</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Perfil de Acesso</mat-label>
+            <mat-select formControlName="regra">
+              <mat-option value="USER">Funcionário (Padrão)</mat-option>
+              <mat-option value="ADMIN">Administrador</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <button mat-flat-button color="primary" class="btn-submit" type="submit" [disabled]="form.invalid">
+          CADASTRAR USUÁRIO
+        </button>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

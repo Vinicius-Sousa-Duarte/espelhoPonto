@@ -1,39 +1,29 @@
 <mat-sidenav-container class="sidenav-container">
-  
-  <mat-sidenav #drawer mode="side" opened class="sidenav">
-    <div class="logo-area">
-      <mat-icon>watch_later</mat-icon>
+  <mat-sidenav mode="side" opened class="sidenav">
+    <div class="logo">
+      <mat-icon class="logo-icon">watch_later</mat-icon>
       <span>EspelhoPonto</span>
     </div>
     
     <mat-nav-list>
-      <a mat-list-item href="#" class="active-link">
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>Dashboard</span>
       </a>
-      <a mat-list-item href="#">
-        <mat-icon matListItemIcon>history</mat-icon>
-        <span matListItemTitle>Histórico</span>
+
+      <a mat-list-item *ngIf="isAdmin" routerLink="/admin/usuarios" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>person_add</mat-icon>
+        <span matListItemTitle>Novo Usuário</span>
+      </a>
+
+      <a mat-list-item (click)="logout()">
+        <mat-icon matListItemIcon>logout</mat-icon>
+        <span matListItemTitle>Sair</span>
       </a>
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="drawer.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <span>Meu Painel</span>
-      <span class="spacer"></span>
-      <button mat-icon-button (click)="logout()" title="Sair">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </mat-toolbar>
-
-    <div class="content-wrapper">
-      <router-outlet></router-outlet> 
-    </div>
-
+    <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

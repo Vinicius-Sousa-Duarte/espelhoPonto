@@ -31,6 +31,10 @@ public class SecurityFilter extends OncePerRequestFilter {
             UserDetails user = usuarioRepository.findByLogin(login);
 
             if(user != null){
+
+                System.out.println("LOGADO COMO: " + user.getUsername());
+                System.out.println("PERMISSÕES: " + user.getAuthorities());
+
                 var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
