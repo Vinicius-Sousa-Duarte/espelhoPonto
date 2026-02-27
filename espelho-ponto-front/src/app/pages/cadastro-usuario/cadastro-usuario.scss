@@ -198,6 +198,7 @@ $card-glass: rgba(255, 255, 255, 0.7);
     &:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+      color: white;
     }
     &:disabled { opacity: 0.7; }
   }
