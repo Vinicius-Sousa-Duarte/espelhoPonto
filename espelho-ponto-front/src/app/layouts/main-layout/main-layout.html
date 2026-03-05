@@ -1,5 +1,6 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav mode="side" opened class="sidenav">
+  
+  <mat-sidenav mode="side" [opened]="menuAberto" class="sidenav">
     
     <div class="logo-container">
       <div class="logo-icon">
@@ -33,8 +34,16 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
+    
+    <div class="top-bar-toggle">
+      <button mat-icon-button class="btn-toggle-menu" (click)="toggleMenu()" matTooltip="Recolher/Expandir Menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+
     <div class="content-wrapper">
       <router-outlet></router-outlet>
     </div>
+
   </mat-sidenav-content>
 </mat-sidenav-container>

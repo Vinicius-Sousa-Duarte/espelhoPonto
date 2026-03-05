@@ -1,33 +1,69 @@
-$primary-color: #4f46e5; 
-$secondary-color: #0ea5e9; 
+$primary-color: #4f46e5;
+$secondary-color: #0ea5e9;
 $text-main: #0f172a;
 $text-muted: #64748b;
 $card-glass: rgba(255, 255, 255, 0.7);
 
 @keyframes swap-one {
-  0% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(40vw, 20vh) scale(1.2); }
-  50% { transform: translate(80vw, 60vh) scale(1); }
-  75% { transform: translate(40vw, 80vh) scale(1.1); }
-  100% { transform: translate(0, 0) scale(1); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(40vw, 20vh) scale(1.2);
+  }
+
+  50% {
+    transform: translate(80vw, 60vh) scale(1);
+  }
+
+  75% {
+    transform: translate(40vw, 80vh) scale(1.1);
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 @keyframes swap-two {
-  0% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(-40vw, -20vh) scale(1.2); }
-  50% { transform: translate(-80vw, -60vh) scale(1); }
-  75% { transform: translate(-40vw, -80vh) scale(1.1); }
-  100% { transform: translate(0, 0) scale(1); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(-40vw, -20vh) scale(1.2);
+  }
+
+  50% {
+    transform: translate(-80vw, -60vh) scale(1);
+  }
+
+  75% {
+    transform: translate(-40vw, -80vh) scale(1.1);
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 @keyframes bg-pulse {
-  0%, 100% { background-color: #f8fafc; }
-  50% { background-color: #eff6ff; } 
+
+  0%,
+  100% {
+    background-color: #f8fafc;
+  }
+
+  50% {
+    background-color: #eff6ff;
+  }
 }
 
 :host {
   display: block;
   min-height: 100vh;
+  margin: -16px -40px -40px -40px;
 }
 
 .page-container {
@@ -37,8 +73,8 @@ $card-glass: rgba(255, 255, 255, 0.7);
   min-height: 100vh;
   padding: 24px;
   position: relative;
-  overflow: hidden; 
-  
+  overflow: hidden;
+
   animation: bg-pulse 15s ease-in-out infinite;
 
   &::before {
@@ -46,7 +82,7 @@ $card-glass: rgba(255, 255, 255, 0.7);
     position: absolute;
     width: 700px;
     height: 700px;
-    background: radial-gradient(circle, rgba(129, 140, 248, 0.6), rgba(79, 70, 229, 0.3)); 
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.6), rgba(79, 70, 229, 0.3));
     border-radius: 50%;
     top: -20%;
     left: -15%;
@@ -75,17 +111,17 @@ $card-glass: rgba(255, 255, 255, 0.7);
   z-index: 10;
   width: 100%;
   max-width: 480px;
-  
+
   background: $card-glass;
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  
+
   border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: 24px;
-  box-shadow: 
+  box-shadow:
     0 30px 60px -12px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-    
+
   padding: 50px 32px 40px 32px;
 
   .header-icon-container {
@@ -93,12 +129,12 @@ $card-glass: rgba(255, 255, 255, 0.7);
     top: -40px;
     left: 50%;
     transform: translateX(-50%);
-    
+
     .icon-circle {
       width: 84px;
       height: 84px;
       background: linear-gradient(135deg, $primary-color, $secondary-color);
-      border-radius: 50%; 
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -139,27 +175,34 @@ $card-glass: rgba(255, 255, 255, 0.7);
   }
 
   mat-card-content {
-    form { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 20px; 
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    .full-width { width: 100%; }
 
-    // Correção dos ícones: Removidas propriedades estruturais conflitantes
+    .full-width {
+      width: 100%;
+    }
+
     mat-icon[matSuffix] {
       color: #94a3b8;
       transition: color 0.3s;
+      display: inline-flex !important;
+      margin-right: 0 !important;
     }
 
-    mat-form-field.mat-focused mat-icon[matSuffix] { 
-      color: $primary-color; 
+    mat-form-field.mat-focused mat-icon[matSuffix] {
+      color: $primary-color;
     }
 
     .row {
-      display: flex; 
+      display: flex;
       gap: 16px;
-      .half-width { flex: 1; }
+
+      .half-width {
+        flex: 1;
+      }
     }
   }
 
@@ -179,7 +222,10 @@ $card-glass: rgba(255, 255, 255, 0.7);
       box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
       color: white;
     }
-    &:disabled { opacity: 0.7; }
+
+    &:disabled {
+      opacity: 0.7;
+    }
   }
 }
 
@@ -187,14 +233,25 @@ $card-glass: rgba(255, 255, 255, 0.7);
 // RESPONSIVIDADE (MOBILE & TABLETS)
 // ==========================================
 @media (max-width: 768px) {
+
+  :host {
+    margin: -76px -16px -24px -16px;
+  }
+
   .page-container {
     padding: 16px;
-    min-height: calc(100vh - 120px); 
+    align-items: flex-start;
+
+    padding-top: 84px;
+    height: 100%;
+    min-height: 100vh;
+    overflow-y: auto;
 
     &::before {
       width: 350px;
       height: 350px;
     }
+
     &::after {
       width: 300px;
       height: 300px;
@@ -202,12 +259,13 @@ $card-glass: rgba(255, 255, 255, 0.7);
   }
 
   .form-card {
-    padding: 40px 20px 32px 20px; 
+    padding: 40px 16px 24px 16px;
     border-radius: 20px;
+    margin-bottom: 40px; 
 
     .header-icon-container {
-      top: -30px; 
-      
+      top: -30px;
+
       .icon-circle {
         width: 64px;
         height: 64px;
@@ -226,18 +284,18 @@ $card-glass: rgba(255, 255, 255, 0.7);
       margin-bottom: 24px;
 
       mat-card-title {
-        font-size: 1.4rem; 
+        font-size: 1.4rem;
       }
     }
 
     mat-card-content {
-      form { 
-        gap: 24px; // Aumentado para dar espaço entre os campos
+      form {
+        gap: 16px;
       }
 
       .row {
-        flex-direction: column; 
-        gap: 24px; // Aumentado para evitar que o hint "Mínimo 6 caracteres" sobreponha o próximo campo
+        flex-direction: column;
+        gap: 20px; 
       }
     }
 

@@ -17,6 +17,13 @@ export class MainLayoutComponent implements OnInit {
   private authService = inject(AuthService);
   isAdmin = false;
 
+  menuAberto = true; 
+
+  toggleMenu() {
+    this.menuAberto = !this.menuAberto;
+  }
+
+
   ngOnInit() {
     this.isAdmin = this.authService.hasRole('ADMIN');
   }
