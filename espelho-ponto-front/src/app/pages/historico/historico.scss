@@ -38,6 +38,7 @@ $glass-bg: rgba(255, 255, 255, 0.85);
       margin: 0 0 8px 0;
       letter-spacing: -0.5px;
     }
+
     p {
       color: $text-muted;
       margin: 0;
@@ -56,8 +57,9 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     ::ng-deep .mat-mdc-text-field-wrapper {
       background-color: transparent !important;
     }
+
     ::ng-deep .mdc-notched-outline {
-      border: 1px solid rgba(0,0,0,0.05) !important;
+      border: 1px solid rgba(0, 0, 0, 0.05) !important;
     }
   }
 }
@@ -83,7 +85,7 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: $text-muted;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     padding: 20px 24px;
   }
 
@@ -91,12 +93,13 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
     color: $text-main;
-    border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
     padding: 16px 24px;
   }
 
   .element-row {
     transition: background-color 0.2s ease;
+
     &:hover {
       background-color: rgba(241, 245, 249, 0.6);
     }
@@ -175,5 +178,129 @@ $glass-bg: rgba(255, 255, 255, 0.85);
 
 ::ng-deep .mat-mdc-paginator {
   background: transparent !important;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+// ==========================================
+// RESPONSIVIDADE (MOBILE E TABLETS)
+// ==========================================
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px 12px;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .title-area h1 {
+      font-size: 1.75rem;
+    }
+
+    .filter-card .date-picker-field {
+      width: 100%;
+    }
+  }
+
+  .table-card {
+    border-radius: 16px;
+  }
+
+  .modern-table {
+    display: block; 
+    background: transparent;
+
+    ::ng-deep .mat-mdc-header-row {
+      display: none !important;
+    }
+
+    ::ng-deep .mat-mdc-row {
+      display: flex !important;
+      flex-direction: row !important; 
+      flex-wrap: wrap !important;     
+      height: auto !important;
+      min-height: auto !important;
+      padding: 20px 16px !important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      gap: 12px; 
+      align-items: center !important; 
+    }
+
+    ::ng-deep .mat-mdc-cell {
+      display: flex !important;
+      padding: 0 !important;
+      border: none !important;
+      min-height: auto !important;
+      align-items: center;
+    }
+
+    ::ng-deep .mat-column-data {
+      order: 1; 
+      width: auto !important;
+      flex: 1 1 min-content; 
+      padding-right: 0 !important; 
+      
+      .date-cell {
+        color: #4f46e5;
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+    }
+
+    ::ng-deep .mat-column-status {
+      order: 2; 
+      position: static !important; 
+      width: auto !important;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    ::ng-deep .mat-column-marcacoes {
+      order: 3; 
+      width: 100% !important; 
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 8px;
+      margin-top: 8px;
+
+      &::before {
+        content: 'Registros:';
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    ::ng-deep .mat-column-horas {
+      order: 4; 
+      width: 100% !important;
+      flex-direction: row !important;
+      justify-content: space-between !important; 
+      margin-top: 8px;
+      padding-top: 16px !important;
+      border-top: 1px dashed rgba(0, 0, 0, 0.08) !important;
+
+      &::before {
+        content: 'Total de Horas:';
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+      
+      .hours-text {
+        font-size: 1.25rem; 
+        font-weight: 800;
+      }
+    }
+
+    ::ng-deep .mat-mdc-no-data-row .mat-cell {
+      display: block !important;
+      padding: 40px 16px !important;
+      text-align: center;
+    }
+  }
 }

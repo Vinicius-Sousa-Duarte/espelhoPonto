@@ -20,6 +20,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 32px 20px;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  transition: width 0.3s ease; 
 
   .logo-container {
     display: flex;
@@ -33,6 +35,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       justify-content: center;
       width: 44px;
       height: 44px;
+      min-width: 44px; 
       background: linear-gradient(135deg, $primary-color 0%, #3b82f6 100%);
       border-radius: 12px;
       color: white;
@@ -51,6 +54,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-weight: 800;
       color: $text-main;
       letter-spacing: -0.5px;
+      white-space: nowrap; 
     }
 
     &:hover .logo-icon {
@@ -60,6 +64,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   mat-nav-list {
     padding-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
 
     a {
       display: flex;
@@ -85,6 +92,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 500;
         font-size: 0.95rem;
         letter-spacing: 0.2px;
+        white-space: nowrap;
       }
 
       &:hover {
@@ -119,6 +127,23 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
     }
+
+    .logout-btn {
+      margin-top: auto; 
+      color: #ef4444; 
+      
+      mat-icon {
+        color: #ef4444;
+      }
+      
+      &:hover {
+        background-color: #fef2f2;
+        color: #dc2626;
+        mat-icon {
+          color: #dc2626;
+        }
+      }
+    }
   }
 }
 
@@ -126,4 +151,53 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 16px 40px 40px 40px;
   max-width: 1600px;
   margin: 0 auto;
+}
+
+// --- RESPONSIVIDADE (Tablets & Mobile) ---
+@media (max-width: 900px) {
+  .sidenav {
+    width: 88px;
+    padding: 24px 12px;
+
+    .logo-container {
+      padding: 8px 0 32px 0;
+      justify-content: center;
+      
+      .logo-text {
+        display: none; 
+      }
+    }
+
+    mat-nav-list {
+      a {
+        padding: 0; 
+        justify-content: center;
+        
+        ::ng-deep .mdc-list-item__start {
+            margin-right: 0 !important;
+        }
+
+        mat-icon {
+          margin-right: 0; 
+        }
+
+        span {
+          display: none; 
+        }
+
+        &.active-link::before {
+          width: 3px;
+          border-radius: 4px;
+        }
+
+        &:hover {
+          transform: translateY(-2px); 
+        }
+      }
+    }
+  }
+
+  .content-wrapper {
+    padding: 16px 16px 24px 16px; 
+  }
 }
