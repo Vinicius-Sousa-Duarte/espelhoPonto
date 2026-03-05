@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RegistroPontoRequest, RegistroPontoResponse, SaldoDTO, DiaJornadaDTO, HistoricoDiario, PageResult } from '../interfaces/ponto-dto';
+import { environment } from '../../environments/environment'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class PontoService {
   private http = inject(HttpClient);
-  private readonly API_URL = '/api/pontos';
+  private readonly API_URL = `${environment.apiUrl}/api/pontos`;
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth-token');

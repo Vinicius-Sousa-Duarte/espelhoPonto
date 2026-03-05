@@ -1,0 +1,3 @@
+/auth/* https://espelhoponto-api.onrender.com/auth/:splat  200
+/api/* https://espelhoponto-api.onrender.com/api/:splat   200
+/* /index.html                                        200
