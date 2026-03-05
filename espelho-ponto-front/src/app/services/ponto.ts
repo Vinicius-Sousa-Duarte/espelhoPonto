@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RegistroPontoRequest, RegistroPontoResponse, SaldoDTO, DiaJornadaDTO } from '../interfaces/ponto-dto';
+import { RegistroPontoRequest, RegistroPontoResponse, SaldoDTO, DiaJornadaDTO, HistoricoDiario, PageResult } from '../interfaces/ponto-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +30,19 @@ export class PontoService {
   getGraficoSemana(): Observable<DiaJornadaDTO[]> {
     return this.http.get<DiaJornadaDTO[]>(`${this.API_URL}/grafico`, {
       headers: this.getHeaders()
+    });
+  }
+
+  buscarHistorico(dataInicio: string, dataFim: string, page: number, size: number): Observable<PageResult<HistoricoDiario>> {
+    const params = new HttpParams()
+      .set('dataInicio', dataInicio)
+      .set('dataFim', dataFim)
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<PageResult<HistoricoDiario>>(`${this.API_URL}/historico`, {
+      headers: this.getHeaders(),
+      params: params
     });
   }
 }

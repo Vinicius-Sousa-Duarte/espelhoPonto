@@ -16,144 +16,109 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: $sidebar-width;
   background: #ffffff;
   border-right: none;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
-  padding: 32px 24px;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+  padding: 32px 20px;
   display: flex;
   flex-direction: column;
 
-  .logo {
+  .logo-container {
     display: flex;
     align-items: center;
-    gap: 12px; 
-    padding: 32px 24px 24px 24px; 
-    margin-bottom: 8px;
+    gap: 14px;
+    padding: 8px 12px 48px 12px;
 
     .logo-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-
-      width: 40px;
-      height: 40px;
-      font-size: 24px; 
-
-      color: #ffffff;
-      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-      border-radius: 12px; 
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); 
-    }
-
-    span {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #0f172a; 
-      letter-spacing: -0.5px;
-    }
-  }
-
-  .logo-area {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding-bottom: 40px;
-    padding-left: 8px;
-
-    .logo-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       background: linear-gradient(135deg, $primary-color 0%, #3b82f6 100%);
       border-radius: 12px;
       color: white;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);
+      transition: transform 0.3s ease;
 
       mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
       }
     }
 
-    span {
+    .logo-text {
       font-size: 1.25rem;
-      font-weight: 700;
+      font-weight: 800;
       color: $text-main;
       letter-spacing: -0.5px;
     }
+
+    &:hover .logo-icon {
+      transform: scale(1.05);
+    }
   }
-}
 
-mat-nav-list {
-  padding-top: 0 !important;
+  mat-nav-list {
+    padding-top: 0 !important;
 
-  a {
-    margin-bottom: 8px;
-    border-radius: 12px;
-    color: $text-muted;
-    height: 52px;
-    padding: 0 16px;
-    transition: $transition;
-    position: relative;
-    overflow: hidden;
-
-    mat-icon {
-      color: #94a3b8;
-      margin-right: 16px;
+    a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      border-radius: 10px;
+      color: $text-muted;
+      height: 50px;
+      padding: 0 16px;
       transition: $transition;
-    }
-
-    span {
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
-    &:hover {
-      background-color: #f1f5f9;
-      color: $text-main;
-      transform: translateX(4px);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      cursor: pointer;
 
       mat-icon {
+        color: #94a3b8;
+        margin-right: 14px;
+        transition: $transition;
+      }
+
+      span {
+        font-weight: 500;
+        font-size: 0.95rem;
+        letter-spacing: 0.2px;
+      }
+
+      &:hover {
+        background-color: #f1f5f9;
+        color: $text-main;
+        transform: translateX(4px);
+
+        mat-icon {
+          color: $primary-color;
+        }
+      }
+
+      &.active-link {
+        background-color: $primary-light;
         color: $primary-color;
+        font-weight: 600;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 20px;
+          width: 4px;
+          background-color: $primary-color;
+          border-radius: 0 4px 4px 0;
+        }
+
+        mat-icon {
+          color: $primary-color;
+        }
       }
     }
-
-    &.active-link {
-      background-color: $primary-light;
-      color: $primary-color;
-      font-weight: 600;
-
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        height: 24px;
-        width: 4px;
-        background-color: $primary-color;
-        border-radius: 0 4px 4px 0;
-      }
-
-      mat-icon {
-        color: $primary-color;
-      }
-    }
-  }
-}
-
-mat-toolbar {
-  background: transparent !important;
-  color: $text-main !important;
-  box-shadow: none !important;
-  height: 80px;
-  padding: 0 40px;
-
-  &.scrolled {
-    background: rgba(255, 255, 255, 0.8) !important;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
 }
 

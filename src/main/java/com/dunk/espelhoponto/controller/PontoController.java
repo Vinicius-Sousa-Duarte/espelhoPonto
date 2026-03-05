@@ -1,14 +1,19 @@
 package com.dunk.espelhoponto.controller;
 
 import com.dunk.espelhoponto.dto.DiaJornadaDTO;
+import com.dunk.espelhoponto.dto.HistoricoDiarioDTO;
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.dto.SaldoHorasDTO;
 import com.dunk.espelhoponto.entity.Usuario;
 import com.dunk.espelhoponto.service.PontoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,4 +50,21 @@ public class PontoController {
         List<DiaJornadaDTO> dados = service.obterJornadaUltimosSeteDias();
         return ResponseEntity.ok(dados);
     }
+
+    @GetMapping("/historico")
+    public ResponseEntity<Page<HistoricoDiarioDTO>> buscarHistorico(
+            @AuthenticationPrincipal Usuario usuario,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<HistoricoDiarioDTO> historico = service.gerarHistoricoPaginado(
+                usuario, dataInicio, dataFim, pageable);
+
+        return ResponseEntity.ok(historico);
+    }
+
 }

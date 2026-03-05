@@ -1,8 +1,11 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav mode="side" opened class="sidenav">
-    <div class="logo">
-      <mat-icon class="logo-icon">watch_later</mat-icon>
-      <span>EspelhoPonto</span>
+    
+    <div class="logo-container">
+      <div class="logo-icon">
+        <mat-icon>watch_later</mat-icon>
+      </div>
+      <span class="logo-text">EspelhoPonto</span>
     </div>
     
     <mat-nav-list>
@@ -11,16 +14,22 @@
         <span matListItemTitle>Dashboard</span>
       </a>
 
+      <a mat-list-item routerLink="/historico" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>history</mat-icon>
+        <span matListItemTitle>Histórico</span>
+      </a>
+
       <a mat-list-item *ngIf="isAdmin" routerLink="/admin/usuarios" routerLinkActive="active-link">
         <mat-icon matListItemIcon>person_add</mat-icon>
         <span matListItemTitle>Novo Usuário</span>
       </a>
 
-      <a mat-list-item (click)="logout()">
+      <a mat-list-item (click)="logout()" class="logout-btn">
         <mat-icon matListItemIcon>logout</mat-icon>
         <span matListItemTitle>Sair</span>
       </a>
     </mat-nav-list>
+
   </mat-sidenav>
 
   <mat-sidenav-content>
