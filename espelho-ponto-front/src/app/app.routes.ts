@@ -44,6 +44,11 @@ export const routes: Routes = [
       },
 
       {
+        path: 'historico',
+        loadComponent: () => import('./pages/historico/historico').then(m => m.HistoricoComponent)
+      },
+
+      {
         path: 'admin/usuarios',
         loadComponent: () => import('./pages/cadastro-usuario/cadastro-usuario').then(m => m.CadastroUsuarioComponent),
         canActivate: [adminGuard]

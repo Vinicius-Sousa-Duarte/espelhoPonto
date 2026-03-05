@@ -19,7 +19,6 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.isAdmin = this.authService.hasRole('ADMIN');
-    console.log('Usuário é admin?', this.isAdmin); 
   }
 
   logout() {

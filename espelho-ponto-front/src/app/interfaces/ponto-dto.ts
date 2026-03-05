@@ -21,3 +21,19 @@ export interface DiaJornadaDTO {
   dia: string;
   horas: number;
 }
+
+export interface HistoricoDiario {
+  data: string;
+  marcacoes: string[];
+  totalMinutosTrabalhados: number;
+  horasFormatadas: string;
+  status: string; 
+}
+
+export interface PageResult<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}

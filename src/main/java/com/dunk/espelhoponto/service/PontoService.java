@@ -1,6 +1,7 @@
 package com.dunk.espelhoponto.service;
 
 import com.dunk.espelhoponto.dto.DiaJornadaDTO;
+import com.dunk.espelhoponto.dto.HistoricoDiarioDTO;
 import com.dunk.espelhoponto.dto.RegistroPontoResponseDTO;
 import com.dunk.espelhoponto.entity.Ponto;
 import com.dunk.espelhoponto.entity.Usuario;
@@ -11,15 +12,15 @@ import com.dunk.espelhoponto.repository.PontoRepository;
 import com.dunk.espelhoponto.strategy.CalculoAdicionalNoturno;
 import com.dunk.espelhoponto.strategy.CalculoFimDeSemana;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +54,7 @@ public class PontoService {
 
         long qtdBatidasHoje = repository.countByUsuarioAndDataHoraBetween(usuarioLogado, inicioDoDia, fimDoDia);
 
-        if (qtdBatidasHoje >= 6){
+        if (qtdBatidasHoje >= 6) {
             throw new RegraNegocioException("Limite diário atingido! Você já realizou os 6 registros permitidos hoje.");
         }
 
@@ -148,6 +149,68 @@ public class PontoService {
 
         return grafico;
     }
+
+    public Page<HistoricoDiarioDTO> gerarHistoricoPaginado(Usuario usuario, LocalDate dataInicio, LocalDate dataFim, Pageable pageable) {
+
+        LocalDateTime inicioDia = dataInicio.atStartOfDay();
+        LocalDateTime fimDia = dataFim.atTime(23, 59, 59);
+
+        List<Ponto> pontosBrutos = repository.findByUsuarioAndDataHoraBetweenOrderByDataHoraAsc(usuario, inicioDia, fimDia);
+
+        Map<LocalDate, List<Ponto>> pontosPorDia = pontosBrutos.stream()
+                .collect(Collectors.groupingBy(
+                        p -> p.getDataHora().toLocalDate(),
+                        () -> new TreeMap<>(Collections.reverseOrder()),
+                        Collectors.toList()
+                ));
+
+        List<HistoricoDiarioDTO> historicoCompleto = new ArrayList<>();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        for (Map.Entry<LocalDate, List<Ponto>> entry : pontosPorDia.entrySet()) {
+            LocalDate data = entry.getKey();
+            List<Ponto> batidasDoDia = entry.getValue();
+
+            batidasDoDia.sort(Comparator.comparing(Ponto::getDataHora));
+
+            List<String> marcacoesFormatadas = new ArrayList<>();
+            long minutosTrabalhados = 0;
+
+            for (int i = 0; i < batidasDoDia.size(); i++) {
+                Ponto batidaAtual = batidasDoDia.get(i);
+                marcacoesFormatadas.add(batidaAtual.getDataHora().format(timeFormatter));
+
+                if (i % 2 != 0) {
+                    Ponto entradaAnterior = batidasDoDia.get(i - 1);
+                    minutosTrabalhados += Duration.between(entradaAnterior.getDataHora(), batidaAtual.getDataHora()).toMinutes();
+                }
+            }
+
+            String status = batidasDoDia.size() % 2 == 0 ? "NORMAL" : "INCOMPLETO";
+
+            long horas = minutosTrabalhados / 60;
+            long minutosRestantes = minutosTrabalhados % 60;
+            String horasFormatadas = String.format("%02dh%02d", horas, minutosRestantes);
+
+            historicoCompleto.add(new HistoricoDiarioDTO(
+                    data,
+                    marcacoesFormatadas,
+                    minutosTrabalhados,
+                    horasFormatadas,
+                    status
+            ));
+        }
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), historicoCompleto.size());
+
+        List<HistoricoDiarioDTO> conteudoPaginado = start <= end
+                ? historicoCompleto.subList(start, end)
+                : new ArrayList<>();
+
+        return new PageImpl<>(conteudoPaginado, pageable, historicoCompleto.size());
+    }
+
 
     private long calcularMinutosDoDia(List<Ponto> batidas) {
         long totalMinutos = 0;
