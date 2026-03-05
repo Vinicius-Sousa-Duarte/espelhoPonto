@@ -1,0 +1,8 @@
+# Ignorar a pasta do Front-end
+espelho-ponto-front
+
+# Ignorar pastas pesadas gerais
+node_modules/
+.git/
+target/
+.mvn/
