@@ -44,25 +44,4 @@ public class AuthenticationController {
         return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getNome()));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<RegistroUsuarioResponseDTO> register(@RequestBody @Valid RegisterDTO data) {
-
-        if (this.repository.existsByLogin(data.login())) {
-            throw new RegraNegocioException("O login '" + data.login() + "' já está em uso.");
-        }
-
-        String encryptedPassword = passwordEncoder.encode(data.senha());
-        Usuario newUser = new Usuario(data.login(), encryptedPassword, data.nome(), data.regra());
-
-        this.repository.save(newUser);
-
-        var response = new RegistroUsuarioResponseDTO(
-                newUser.getLogin(),
-                newUser.getRegra(),
-                "Usuário criado com sucesso!",
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
 }
