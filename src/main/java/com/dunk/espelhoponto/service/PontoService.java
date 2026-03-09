@@ -35,7 +35,8 @@ public class PontoService {
     public RegistroPontoResponseDTO registrar() {
 
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        LocalDateTime agora = LocalDateTime.now();
+        ZoneId fusoHorarioBrasil = ZoneId.of("America/Sao_Paulo");
+        LocalDateTime agora = LocalDateTime.now(fusoHorarioBrasil);
 
         var ultimoPontoOpt = repository.findTopByUsuarioOrderByDataHoraDesc(usuarioLogado);
         String aviso = null;
